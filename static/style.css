@@ -1,0 +1,140 @@
+html {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: Meta, Calibri, sans-serif;
+  color: #373a3c;
+  background: #eee;
+}
+
+body > header {
+  background-image: url(Anexia_Logo_RGB.png);
+  background-repeat: no-repeat;
+  background-position: 1em 1em;
+  background-size: auto 5em;
+  background-color: #002d6e;
+  color: white;
+
+  padding: 1em;
+  min-height: 7rem;
+  box-sizing: border-box;
+}
+
+body > header,
+body > header h1 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body > header h1 {
+  padding-left: 14rem;
+}
+
+body > header h1:before,
+body > header h1:after {
+  content: '—';
+  display: block;
+  margin-top: -0.28em;
+  margin-bottom: -0.28em;
+}
+
+body > header nav {
+  position: relative;
+  width: fit-content;
+  line-height: 1em;
+}
+
+body > header nav ul {
+  padding: 0;
+  margin-top: 1.5em;
+  margin-bottom: 0;
+}
+
+body > header nav li {
+  list-style: none;
+  margin-right: 1em;
+}
+
+body > header nav > ul > li {
+  display: inline-block;
+}
+
+menu.dropdown {
+  max-height: 1em;
+  line-height: 1em;
+  overflow: hidden;
+  width: max-content;
+
+  position: absolute;
+  padding: 1em;
+  padding-top: 0.5em;
+  margin: 0;
+  top: -0.5rem;
+  margin-left: -0.5em;
+
+  transition: all 0.1s ease-in-out;
+}
+
+menu.dropdown ul {
+  margin: 0;
+}
+
+menu.dropdown li {
+  margin-top: 0.5em;
+}
+
+menu.dropdown:hover {
+  max-height: 15em;
+  overflow: auto;
+
+  background: white;
+  border: 1px solid #eee;
+  box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
+}
+
+menu.dropdown > header .version {
+  color: #77BC1F;
+  text-decoration: underline;
+}
+
+menu.dropdown:hover > header .version {
+  font-weight: bold;
+  color: #373a3c;
+  text-decoration: none;
+}
+
+menu.dropdown:hover > header {
+  color: #373a3c;
+}
+
+menu.dropdown > ul {
+  display: none;
+}
+
+menu.dropdown:hover > ul {
+  display: block;
+}
+
+body > main {
+  max-width: 60em;
+  padding: 1em;
+  margin: auto;
+  background: white;
+  line-height: 1.5em;
+}
+
+pre {
+  overflow: auto;
+}
+
+a[href] {
+  color: #77BC1F;
+}
+
+a.latestVersion {
+  font-style: italic;
+}

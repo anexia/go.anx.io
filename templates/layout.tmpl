@@ -1,0 +1,40 @@
+{{ define "main" }}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      {{ block "title" . }}
+          go.anx.io - go packages by Anexia
+      {{ end }}
+    </title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    {{- block "meta" . }}
+    {{ end -}}
+  </head>
+  <body>
+    <header>
+      <h1>{{ template "title" . }}</h1>
+      {{- block "header" . }}
+      {{- end }}
+    </header>
+    <main>
+      {{- block "content" . }}
+        {{- with .Content.Markdown }}
+           {{ . | renderMarkdown -}}
+        {{- end }}
+      {{- end }}
+
+      {{- with .Packages }}
+        <h2>Go packages provided by Anexia</h2>
+        <ul>
+          {{- range . }}
+            <li><a href="/{{ .TargetName }}/">go.anx.io/{{ .TargetName }}</a> - {{ .Summary }}</li>
+          {{ end -}}
+        </ul>
+      {{- end }}
+    </main>
+  </body>
+</html>
+{{ end }}

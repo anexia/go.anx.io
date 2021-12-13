@@ -1,0 +1,36 @@
+{{- define "title" -}}
+    go.anx.io/{{- .Package.TargetName -}}
+    {{- with .Content.Markdown }} - {{ . | extractFirstHeader -}}{{- end -}}
+{{- end -}}
+
+{{ define "meta" }}
+    <meta name="go-import" content="go.anx.io/{{ .Package.TargetName }} {{ .Package.Source }}">
+{{ end }}
+
+{{ define "header" }}
+  <nav>
+    <ul>
+      <li><a href="/">Other packages by Anexia</a></li>
+      <li><a href="https://pkg.go.dev/go.anx.io/{{ .Package.TargetName }}@{{ .CurrentVersion }}">API documentation</a></li>
+      <li><a href="{{ .Package.Source | removeGitRepoSuffix }}">Source repository</a></li>
+      <li>
+        <menu class="dropdown">
+          <header>Version <span class="version">{{ .CurrentVersion }}</span></header>
+          <ul>
+            <li>
+              <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}" class="latestVersion">latest release</a>
+            </li>
+            {{ range .Package.Versions }}
+              <li>
+                <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ . }}">{{ . }}</a>
+              </li>
+            {{ end }}
+          </ul>
+        </menu>
+    </li>
+    </ul>
+  </nav>
+{{ end }}
+
+{{- define "packages" -}}
+{{- end -}}
