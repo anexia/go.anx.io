@@ -238,6 +238,8 @@ func renderPackageFile(pkg *pkgEntry, filePath string, writer io.Writer) error {
 	} else {
 		if path.Ext(filePath) == ".md" {
 			data.Content.Markdown = string(content)
+		} else if path.Ext(filePath) == ".go" {
+			data.Content.Markdown = fmt.Sprintf("# `%v`\n\n```go\n%v\n```", filePath, string(content))
 		} else {
 			return fmt.Errorf("%w: unknown file extension", os.ErrInvalid)
 		}
