@@ -81,20 +81,24 @@ menu.dropdown {
 
 menu.dropdown li {
   display: none;
-  margin: 0;
-}
-
-menu.dropdown li:first-child,
-menu.dropdown:hover li {
-  display: block;
-  margin-top: 0;
-}
-
-menu.dropdown li {
+  opacity: 0;
+  transition: all 0.1s ease-in-out;
   margin-top: 0.5em;
 }
 
-menu.dropdown:hover {
+menu.dropdown li:first-child {
+  margin-top: 0;
+}
+
+menu.dropdown li:first-child,
+menu.dropdown:hover li,
+menu.dropdown:focus-within li {
+  display: block;
+  opacity: 1;
+}
+
+menu.dropdown:hover,
+menu.dropdown:focus-within {
   max-height: 15em;
   overflow: auto;
 
@@ -103,18 +107,27 @@ menu.dropdown:hover {
   box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
 }
 
-menu.dropdown > li.header .version {
+menu.dropdown > li.header a {
+  color: white;
+  transition: all 0.1s ease-in-out;
+  text-decoration: none;
+}
+
+menu.dropdown > li.header a {
   color: #77BC1F;
+  transition: all 0.1s ease-in-out;
   text-decoration: underline;
 }
 
-menu.dropdown:hover > li.header .version {
-  font-weight: bold;
+menu.dropdown:focus-within > li.header,
+menu.dropdown:hover > li.header {
   color: #373a3c;
   text-decoration: none;
 }
 
-menu.dropdown:hover > li.header {
+menu.dropdown:focus-within > li.header .version,
+menu.dropdown:hover > li.header .version {
+  font-weight: bold;
   color: #373a3c;
 }
 
