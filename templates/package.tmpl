@@ -4,7 +4,11 @@
 {{- end -}}
 
 {{ define "meta" }}
-    <meta name="go-import" content="go.anx.io/{{ .Package.TargetName }} {{ .Package.Source }}">
+    <meta name="go-import" content="go.anx.io/{{ .Package.TargetName }} {{ .Package.Source }}
+    {{- with .Package.Source | removeGitRepoSuffix }} {{/* line break trim comment */ -}}
+        {{ . }}/tree/{{ $.CurrentVersion }} {{/* line break trim comment */ -}}
+        {{ . }}/tree/{{ $.CurrentVersion }}/{{ $.CurrentFile }}
+    {{- end -}}">
 {{ end }}
 
 {{ define "header" }}
