@@ -154,10 +154,9 @@ func renderFile(pkg *pkgEntry, filePath string, writer io.Writer) error {
 	if content, err := os.ReadFile(filePath); err != nil {
 		return fmt.Errorf("error reading source file '%v': %w", filePath, err)
 	} else {
-		if path.Ext(filePath) == ".md" {
-			data.Content.Markdown = string(content)
-		} else {
-			return fmt.Errorf("%w: unknown file extension", os.ErrInvalid)
+		err = renderContent(string(content), filePath, &data)
+		if err != nil {
+			return err
 		}
 
 		return mainTemplate.ExecuteTemplate(writer, "main", data)
@@ -189,14 +188,24 @@ func renderPackageFile(pkg *pkgEntry, filePath string, writer io.Writer) error {
 	if content, err := pkg.FileReader.ReadFile(filePath, version); err != nil {
 		return err
 	} else {
-		if path.Ext(filePath) == ".md" {
-			data.Content.Markdown = string(content)
-		} else if path.Ext(filePath) == ".go" {
-			data.Content.Markdown = fmt.Sprintf("# `%v`\n\n```go\n%v\n```", filePath, string(content))
-		} else {
-			return fmt.Errorf("%w: unknown file extension", os.ErrInvalid)
+		err = renderContent(string(content), filePath, &data.mainTemplateData)
+		if err != nil {
+			return err
 		}
 
 		return packageTemplate.ExecuteTemplate(writer, "main", data)
 	}
+}
+
+func renderContent(content string, filePath string, data *mainTemplateData) error {
+	switch path.Ext(filePath) {
+	case ".md":
+		data.Content.Markdown = string(content)
+	case ".go":
+		data.Content.Markdown = fmt.Sprintf("# `%v`\n\n```go\n%v\n```", filePath, string(content))
+	default:
+		return fmt.Errorf("%w: unknown file extension", os.ErrInvalid)
+	}
+
+	return nil
 }
