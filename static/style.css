@@ -79,8 +79,15 @@ menu.dropdown {
   transition: all 0.1s ease-in-out;
 }
 
-menu.dropdown ul {
+menu.dropdown li {
+  display: none;
   margin: 0;
+}
+
+menu.dropdown li:first-child,
+menu.dropdown:hover li {
+  display: block;
+  margin-top: 0;
 }
 
 menu.dropdown li {
@@ -96,27 +103,19 @@ menu.dropdown:hover {
   box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
 }
 
-menu.dropdown > header .version {
+menu.dropdown > li.header .version {
   color: #77BC1F;
   text-decoration: underline;
 }
 
-menu.dropdown:hover > header .version {
+menu.dropdown:hover > li.header .version {
   font-weight: bold;
   color: #373a3c;
   text-decoration: none;
 }
 
-menu.dropdown:hover > header {
+menu.dropdown:hover > li.header {
   color: #373a3c;
-}
-
-menu.dropdown > ul {
-  display: none;
-}
-
-menu.dropdown:hover > ul {
-  display: block;
 }
 
 body > main {
