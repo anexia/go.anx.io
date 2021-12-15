@@ -5,47 +5,51 @@ html {
 
 body {
   padding: 0;
-  margin: 0;
+  margin: auto;
+
   font-family: Meta, Calibri, sans-serif;
+  font-size: 16px;
+  font-variant-numeric: lining-nums;
   color: #373a3c;
-  background: #eee;
+  background: #002d6e;
+
+  max-width: 60em;
+  line-height: 1.2em;
 }
 
 body > header {
-  background-image: url(Anexia_Logo_RGB.png);
+  background-image: url(Anexia_Logo_RGB.svg);
   background-repeat: no-repeat;
   background-position: 1em 1em;
-  background-size: auto 5em;
+  background-size: auto 45px;
   background-color: #002d6e;
   color: white;
 
+  margin-top: 30px;
   padding: 1em;
   min-height: 7rem;
   box-sizing: border-box;
 }
 
-body > header,
 body > header h1 {
   margin-top: 0;
   margin-bottom: 0;
+  margin-left: 130px;
+  line-height: 45px;
 }
 
-body > header h1 {
-  padding-left: 14rem;
-}
-
-body > header h1:before,
-body > header h1:after {
-  content: '—';
-  display: block;
-  margin-top: -0.28em;
-  margin-bottom: -0.28em;
-}
-
-body > header nav {
+body > header > nav {
   position: relative;
   width: fit-content;
   line-height: 1em;
+}
+
+body > header nav a {
+  text-decoration: none;
+}
+
+body > header nav a:hover {
+  border-bottom: 1px solid #77BC1F;
 }
 
 body > header nav ul {
@@ -56,10 +60,14 @@ body > header nav ul {
 
 body > header nav li {
   list-style: none;
-  margin-right: 1em;
+  margin-right: 20px;
 }
 
 body > header nav > ul > li {
+  display: inline-block;
+}
+
+nav[role=combobox] {
   display: inline-block;
 }
 
@@ -70,11 +78,9 @@ menu.dropdown {
   width: max-content;
 
   position: absolute;
-  padding: 1em;
-  padding-top: 0.5em;
+  padding: 0;
   margin: 0;
-  top: -0.5rem;
-  margin-left: -0.5em;
+  top: 0;
 
   transition: all 0.1s ease-in-out;
 }
@@ -83,11 +89,38 @@ menu.dropdown li {
   display: none;
   opacity: 0;
   transition: all 0.1s ease-in-out;
-  margin-top: 0.5em;
+  margin-right: 0;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  line-height: 1.25em;
+  bottom: 0;
+}
+
+menu.dropdown:hover li a,
+menu.dropdown:focus-within li a {
+  color: #696969;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+  padding-left: 1.5em;
+  box-sizing: border-box;
+}
+
+menu.dropdown:hover li:hover a,
+menu.dropdown:focus-within li:hover a {
+  color: white;
+}
+
+menu.dropdown:focus-within > li a:hover,
+menu.dropdown:hover > li a:hover {
+  border-bottom: none;
 }
 
 menu.dropdown li:first-child {
   margin-top: 0;
+  line-height: 1em;
 }
 
 menu.dropdown li:first-child,
@@ -103,40 +136,111 @@ menu.dropdown:focus-within {
   overflow: auto;
 
   background: white;
-  border: 1px solid #eee;
+  color: #696969;
+  border: 1px solid #b5b5b5;
   box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
 }
 
 menu.dropdown > li.header a {
-  color: white;
-  transition: all 0.1s ease-in-out;
-  text-decoration: none;
-}
-
-menu.dropdown > li.header a {
   color: #77BC1F;
-  transition: all 0.1s ease-in-out;
-  text-decoration: underline;
 }
 
-menu.dropdown:focus-within > li.header,
-menu.dropdown:hover > li.header {
-  color: #373a3c;
-  text-decoration: none;
+menu.dropdown:focus-within > li,
+menu.dropdown:hover > li {
+  color: #696969;
+  transition: all .1s ease-in-out;
 }
 
-menu.dropdown:focus-within > li.header .version,
-menu.dropdown:hover > li.header .version {
-  font-weight: bold;
-  color: #373a3c;
+menu.dropdown:focus-within > li:hover,
+menu.dropdown:hover > li:hover {
+  color: white;
+  background-color: #77BC1F
+}
+
+menu.dropdown:focus-within > li[aria-selected="true"]:hover a,
+menu.dropdown:hover > li[aria-selected="true"]:hover a {
+  background-image: url(check-white.svg);
+}
+
+menu.dropdown:focus-within > li[aria-selected="true"] a,
+menu.dropdown:hover > li[aria-selected="true"] a {
+  content: '';
+  background-image: url(check-green.svg);
+  background-size: 1em 1em;
+  background-position: 0 50%;
+  background-repeat: no-repeat;
 }
 
 body > main {
-  max-width: 60em;
-  padding: 1em;
+  padding: 40px;
   margin: auto;
   background: white;
   line-height: 1.5em;
+}
+
+main h1,
+main h2 {
+  color: #003ca6;
+}
+
+main h3 {
+  color: #696969;
+}
+
+main h1,
+main h2,
+main h3 {
+  margin-top: 1em;
+}
+
+main h1:after,
+main h2:after,
+main h3:after {
+  content: '—';
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: -0.25em;
+}
+
+section.packages {
+  display: flex;
+  gap: 20px;
+}
+
+section.packages article {
+  display: inline-block;
+  width: 50%;
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid #d7d7d7;
+}
+
+section.packages article footer a {
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+section.packages article footer a:after {
+  content: ' >';
+}
+
+section.packages article footer a:hover {
+  border-bottom: 1px solid #77BC1F;
+}
+
+body > footer {
+  text-align: right;
+  color: white;
+  font-size: 12px;
+  margin-bottom: 40px;
+}
+
+hr {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  background-color: #003ca6;
+  border: 0;
+  height: 1px;
 }
 
 pre {

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 var mainTemplate *template.Template
@@ -21,6 +22,7 @@ type mainTemplateData struct {
 	Title       string
 	Content     templateDataContent
 	CurrentFile string
+	CurrentYear int
 	Packages    []*pkgEntry
 }
 
@@ -157,6 +159,7 @@ func renderFile(pkg *pkgEntry, filePath string, writer io.Writer) error {
 	}
 
 	data := mainTemplateData{
+		CurrentYear: time.Now().Year(),
 		CurrentFile: filePath,
 		Packages:    pkgConfig,
 	}
@@ -211,6 +214,7 @@ func renderPackageFile(pkg *pkgEntry, filePath string, writer io.Writer) error {
 
 	data := packageTemplateData{
 		mainTemplateData: mainTemplateData{
+			CurrentYear: time.Now().Year(),
 			CurrentFile: filePath,
 		},
 		Package:        pkg,

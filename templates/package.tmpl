@@ -3,6 +3,10 @@
     {{- with .Content.Markdown }} - {{ . | extractFirstHeader -}}{{- end -}}
 {{- end -}}
 
+{{- define "headerTitle" -}}
+    go.anx.io/{{- .Package.TargetName -}}
+{{- end -}}
+
 {{ define "meta" }}
     <meta name="go-import" content="go.anx.io/{{ .Package.TargetName }} {{ .Package.Source }}
     {{- with .Package.Source | removeGitRepoSuffix }} {{/* line break trim comment */ -}}
@@ -12,27 +16,31 @@
 {{ end }}
 
 {{ define "header" }}
+      <hr />
       <nav>
         <ul>
           <li><a href="/">Other packages by Anexia</a></li>
           <li><a href="https://pkg.go.dev/go.anx.io/{{ .Package.TargetName }}@{{ .CurrentVersion }}">API documentation</a></li>
           <li><a href="{{ .Package.Source | removeGitRepoSuffix }}">Source repository</a></li>
-          <li role="combobox">
-            <menu class="dropdown" role="listbox" aria-label="version">
-              <li role="presentation" class="header">Version {{/* line break remover */ -}}
-                <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ .CurrentVersion }}">{{ .CurrentVersion }}</a>{{/* line break remover */ -}}
-              </li>
-              <li role="option" aria-selected="false">{{/* line break remover */ -}}
-                <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}" class="latestVersion">latest release</a>{{/* line break remover */ -}}
-              </li>
-              {{ range .Package.Versions -}}
-              {{- if ne . $.CurrentVersion -}}
-              <li role="option" aria-selected="false">{{/* line break remover */ -}}
-                <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ . }}">{{ . }}</a>{{/* line break remover */ -}}
-              </li>
-              {{ end -}}
-              {{- end -}}
-            </menu>
+          <li>
+            <label id="versionLabel">Version:</label>
+            <nav role="combobox">
+              <menu class="dropdown" role="listbox" aria-labelledby="versionLabel">
+                <li role="option" aria-selected="true">
+                  <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ .CurrentVersion }}">{{ .CurrentVersion }}</a>{{/* line break remover */ -}}
+                </li>
+                <li role="option" aria-selected="false">{{/* line break remover */ -}}
+                  <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}" class="latestVersion">latest release</a>{{/* line break remover */ -}}
+                </li>
+                {{ range .Package.Versions -}}
+                  {{- if ne . $.CurrentVersion -}}
+                    <li role="option" aria-selected="false">
+                      <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ . }}">{{ . }}</a>{{/* line break remover */ -}}
+                    </li>
+                  {{- end -}}
+                {{ end -}}
+              </menu>
+            </nav>
           </li>
         </ul>
       </nav>
