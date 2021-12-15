@@ -96,6 +96,22 @@ func renderFiles(destinationPath string) error {
 		}
 	}
 
+	destinationDirectory := path.Join(destinationPath, "chroma")
+	err = os.MkdirAll(destinationDirectory, 0755)
+	if err != nil {
+		return err
+	}
+
+	w, err := os.OpenFile(path.Join(destinationDirectory, "style.css"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+
+	err = renderFile(nil, "chroma/style.css", w)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -147,6 +163,22 @@ func renderFile(pkg *pkgEntry, filePath string, writer io.Writer) error {
 
 	if filePath == "" || filePath == "content" {
 		filePath = "content/index.md"
+	} else if filePath == "chroma/style.css" {
+		writer.Write([]byte("@media (prefers-color-scheme: light) {\n"))
+		err := renderChromaCSS("light", writer)
+		if err != nil {
+			return err
+		}
+		writer.Write([]byte("}\n\n"))
+
+		writer.Write([]byte("@media (prefers-color-scheme: dark) {\n"))
+		err = renderChromaCSS("dark", writer)
+		if err != nil {
+			return err
+		}
+		writer.Write([]byte("}"))
+
+		return nil
 	} else if !strings.HasPrefix(filePath, "content/") {
 		return fmt.Errorf("invalid file '%v' requested: %w", filePath, os.ErrInvalid)
 	}

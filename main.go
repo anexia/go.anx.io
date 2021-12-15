@@ -87,7 +87,12 @@ func handlePackage(pkg *pkgEntry) {
 			res.WriteHeader(http.StatusInternalServerError)
 			res.Write([]byte(err.Error()))
 		} else {
-			res.Header().Add("Content-Type", "text/html; charset=utf-8")
+			if strings.HasSuffix(filePath, ".css") {
+				res.Header().Add("Content-Type", "text/css; charset=utf-8")
+			} else {
+				res.Header().Add("Content-Type", "text/html; charset=utf-8")
+			}
+
 			res.WriteHeader(http.StatusOK)
 			res.Write(buffer.Bytes())
 		}

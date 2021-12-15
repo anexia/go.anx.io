@@ -15,10 +15,13 @@ import (
 )
 
 func renderMarkdown(contents string) (template.HTML, error) {
+	highlighter := codeHighlighter()
+
 	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,
 			extension.Typographer,
+			highlighter,
 		),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
