@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"sort"
 	"strings"
 
 	git "github.com/go-git/go-git/v5"
@@ -48,37 +47,13 @@ func NewLoader(cachePath string) (*Loader, error) {
 }
 
 func (l *Loader) LoadSources(pkgs []*types.Package) error {
-	const numJobs = 4
-
-	abort := make(chan error, 1)
-	done := make(chan bool, numJobs)
-
 	for _, pkg := range pkgs {
-		go func(pkg *types.Package) {
-			select {
-			case <-abort:
-				return
-			case <-done:
-			}
-
-			if err := l.loadSource(pkg); err != nil {
-				abort <- err
-			}
-
-			done <- true
-		}(pkg)
+		if err := l.loadSource(pkg); err != nil {
+			return err
+		}
 	}
 
-	for i := 0; i < numJobs; i++ {
-		done <- true
-	}
-
-	select {
-	case err := <-abort:
-		return err
-	default:
-		return nil
-	}
+	return nil
 }
 
 func (l *Loader) loadSource(pkg *types.Package) error {
@@ -160,11 +135,6 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 		}
 
 		if len(tags) > 0 {
-			sort.Slice(tags, func(i, j int) bool {
-				// we sort highest-to-lowest
-				return tags[i].version.GreaterThan(tags[j].version)
-			})
-
 			for _, v := range tags {
 				fileReader.versions[v.version.String()] = v.tag
 			}

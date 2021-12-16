@@ -168,6 +168,56 @@ func renderFiles(renderer *render.Renderer, pkgs []*types.Package, destinationPa
 		}
 	}
 
+	if contentFiles, err := fs.Glob(os.DirFS("content"), "*"); err != nil {
+		return nil
+	} else {
+		for _, f := range contentFiles {
+			if f == "index.md" {
+				f = ""
+			}
+
+			// Every "file" is actually a directory in which we place an index.html.
+			// This is needed since we want `README.md` in path, but serving HTML. On GitHub Pages we cannot
+			// configure the MIME type, so we have to serve a file with html extension - our `index.html`.
+			destinationDirectory := path.Join(destinationPath, f)
+			err := os.MkdirAll(destinationDirectory, 0755)
+			if err != nil {
+				return err
+			}
+
+			destinationFile := path.Join(destinationDirectory, "index.html")
+			w, err := os.OpenFile(destinationFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+			if err != nil {
+				return err
+			}
+
+			err = renderer.RenderFile(nil, f, w)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	generatedStaticFiles := []string{"chroma/style.css"}
+	for _, f := range generatedStaticFiles {
+		destinationDirectory := path.Join(destinationPath, path.Dir(f))
+		err := os.MkdirAll(destinationDirectory, 0755)
+		if err != nil {
+			return err
+		}
+
+		destinationFile := path.Join(destinationPath, f)
+		w, err := os.OpenFile(destinationFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+
+		err = renderer.RenderFile(nil, f, w)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
