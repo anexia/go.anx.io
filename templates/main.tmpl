@@ -1,0 +1,21 @@
+{{ define "content" }}
+  {{- with .MarkdownContent }}
+    {{- . | renderMarkdown -}}
+  {{- end }}
+
+  {{- with .Packages }}
+    <section class="packages">
+    {{- range . }}
+      <article>
+        <h3>go.anx.io/{{ .TargetName }}</h3>
+        <summary>
+          {{ .Summary }}
+        </summary>
+        <footer>
+          <a href="/{{ .TargetName }}/">More</a>
+        </footer>
+      </article>
+    {{ end -}}
+    </section>
+  {{- end }}
+{{- end }}

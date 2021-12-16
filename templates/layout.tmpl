@@ -1,4 +1,4 @@
-{{- define "main" -}}
+{{- define "" -}}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -26,25 +26,9 @@
     </header>
     <main>
       {{ block "content" . }}
-        {{- with .Content.Markdown }}
+        {{- with .MarkdownContent }}
           {{- . | renderMarkdown -}}
         {{- end }}
-      {{- end }}
-
-      {{- with .Packages }}
-        <section class="packages">
-        {{- range . }}
-          <article>
-            <h3>go.anx.io/{{ .TargetName }}</h3>
-            <summary>
-              {{ .Summary }}
-            </summary>
-            <footer>
-              <a href="/{{ .TargetName }}/">More</a>
-            </footer>
-          </article>
-        {{ end -}}
-        </section>
       {{- end }}
     </main>
     <footer>

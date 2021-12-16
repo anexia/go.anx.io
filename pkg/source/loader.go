@@ -1,60 +1,30 @@
-package main
+package source
 
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"path"
 	"sort"
+	"strings"
 
 	git "github.com/go-git/go-git/v5"
 	gitConfig "github.com/go-git/go-git/v5/config"
 	gitPlumbing "github.com/go-git/go-git/v5/plumbing"
 
 	"github.com/Masterminds/semver/v3"
+
+	"github.com/anexia-it/go.anx.io/pkg/markdown"
+	"github.com/anexia-it/go.anx.io/pkg/types"
 )
 
-type VersionedFileReader interface {
-	ReadFile(path, version string) ([]byte, error)
+type Loader struct {
+	cachePath string
 }
 
-type repositoryReader struct {
-	repository *git.Repository
-	versions   map[string]*gitPlumbing.Reference
-}
-
-func (r repositoryReader) ReadFile(path, version string) ([]byte, error) {
-	tag, ok := r.versions[version]
-	if !ok {
-		return nil, fmt.Errorf("no tag for version in repository: %w", git.ErrTagNotFound)
-	}
-
-	commit, err := r.repository.CommitObject(tag.Hash())
-	if err != nil {
-		return nil, fmt.Errorf("error resolving tag '%v' to commit: %w", tag.Hash(), err)
-	}
-
-	tree, err := r.repository.TreeObject(commit.TreeHash)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving tree for revision '%v': %w", tag.Hash(), err)
-	}
-
-	entry, err := tree.FindEntry(path)
-	if err != nil {
-		return nil, fmt.Errorf("cannot find path in given versions tree: %w", err)
-	}
-
-	file, err := tree.TreeEntryFile(entry)
-	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve file from given versions tree: %w", err)
-	}
-
-	contents, err := file.Contents()
-	return []byte(contents), err
-}
-
-func loadSources(cachePath string) error {
+func NewLoader(cachePath string) (*Loader, error) {
 	stat, err := os.Stat(cachePath)
 	if errors.Is(err, os.ErrNotExist) {
 		err = os.Mkdir(cachePath, os.ModeDir|0755)
@@ -65,29 +35,59 @@ func loadSources(cachePath string) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("error stat'ing cache path: %w", err)
+		return nil, fmt.Errorf("error stat'ing cache path: %w", err)
 	} else {
 		if !stat.IsDir() {
-			return fmt.Errorf("%w: cache path is not a directory", os.ErrInvalid)
+			return nil, fmt.Errorf("%w: cache path is not a directory", os.ErrInvalid)
 		}
 	}
 
-	for _, pkg := range pkgConfig {
-		if err := loadSource(cachePath, pkg); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return &Loader{
+		cachePath: cachePath,
+	}, nil
 }
 
-func loadSource(cachePath string, pkg *pkgEntry) error {
+func (l *Loader) LoadSources(pkgs []*types.Package) error {
+	const numJobs = 4
+
+	abort := make(chan error, 1)
+	done := make(chan bool, numJobs)
+
+	for _, pkg := range pkgs {
+		go func(pkg *types.Package) {
+			select {
+			case <-abort:
+				return
+			case <-done:
+			}
+
+			if err := l.loadSource(pkg); err != nil {
+				abort <- err
+			}
+
+			done <- true
+		}(pkg)
+	}
+
+	for i := 0; i < numJobs; i++ {
+		done <- true
+	}
+
+	select {
+	case err := <-abort:
+		return err
+	default:
+		return nil
+	}
+}
+
+func (l *Loader) loadSource(pkg *types.Package) error {
 	source, err := url.Parse(pkg.Source)
 	if err != nil {
 		return fmt.Errorf("invalid source url: %w", err)
 	}
 
-	localPath := path.Join(cachePath, source.Host, source.Path)
+	localPath := path.Join(l.cachePath, source.Host, source.Path)
 	repo, err := git.PlainOpen(localPath)
 
 	if err == git.ErrRepositoryNotExists {
@@ -102,10 +102,13 @@ func loadSource(cachePath string, pkg *pkgEntry) error {
 		return fmt.Errorf("error opening local git repository: %w", err)
 	}
 
-	repo.Fetch(&git.FetchOptions{
+	err = repo.Fetch(&git.FetchOptions{
 		Force:    true,
 		RefSpecs: []gitConfig.RefSpec{"refs/heads/*:refs/heads/*"},
 	})
+	if err != nil && err != git.NoErrAlreadyUpToDate {
+		return fmt.Errorf("error fetching source repository: %w", err)
+	}
 
 	if iter, err := repo.Tags(); err != nil {
 		return fmt.Errorf("error iterating tags in local git repository: %w", err)
@@ -117,21 +120,32 @@ func loadSource(cachePath string, pkg *pkgEntry) error {
 
 		tags := make([]tagVersion, 0)
 		err := iter.ForEach(func(tag *gitPlumbing.Reference) error {
+			var commit gitPlumbing.Hash
+			if tagObject, err := repo.TagObject(tag.Hash()); err != nil {
+				commit = tag.Hash()
+			} else {
+				commit = tagObject.Target
+			}
+
 			// first we check if we have a tree for this tag
-			if commit, err := repo.CommitObject(tag.Hash()); err != nil {
+			if commit, err := repo.CommitObject(commit); err != nil {
+				log.Printf("Not using tag %v since we do not have a commit for it (%v)", tag.Name().Short(), err)
 				return nil
 			} else {
 				if _, err := repo.TreeObject(commit.TreeHash); err != nil {
+					log.Printf("Not using tag %v since we do not have a tree for its commit", tag.Name().Short())
 					return nil
 				}
 			}
 
 			// parse tag as semver to filter on only release tags
-			if v, err := semver.NewVersion(tag.Name().Short()); err == nil {
+			if v, err := semver.NewVersion(strings.TrimPrefix(tag.Name().Short(), "v")); err == nil {
 				tags = append(tags, tagVersion{
 					tag:     tag,
 					version: v,
 				})
+			} else {
+				log.Printf("Not using tag %v due to error %v", tag.Name().Short(), err)
 			}
 
 			return nil
@@ -152,8 +166,6 @@ func loadSource(cachePath string, pkg *pkgEntry) error {
 			})
 
 			for _, v := range tags {
-				pkg.Versions = append(pkg.Versions, v.version.String())
-
 				fileReader.versions[v.version.String()] = v.tag
 			}
 		}
@@ -164,7 +176,6 @@ func loadSource(cachePath string, pkg *pkgEntry) error {
 		}
 
 		err = branchIterator.ForEach(func(branch *gitPlumbing.Reference) error {
-			pkg.Versions = append(pkg.Versions, branch.Name().Short())
 			fileReader.versions[branch.Name().Short()] = branch
 			return nil
 		})
@@ -175,12 +186,14 @@ func loadSource(cachePath string, pkg *pkgEntry) error {
 		pkg.FileReader = &fileReader
 
 		if pkg.Summary == "" {
-			contents, err := pkg.FileReader.ReadFile("README.md", pkg.Versions[0])
+			contents, err := fileReader.ReadFile("README.md", fileReader.Versions()[0])
 			if err == nil {
-				pkg.Summary, _ = extractFirstHeader(string(contents))
+				pkg.Summary, _ = markdown.ExtractFirstHeader(string(contents))
 				// ignoring error on purpose - it either works or we don't have a summary
 			}
 		}
+
+		log.Printf("Loaded package '%v' with %v versions", pkg.TargetName, len(fileReader.versions))
 
 		return nil
 	}

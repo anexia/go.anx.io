@@ -5,4 +5,4 @@ generate: go.anx.io
 
 .PHONY: go.anx.io
 go.anx.io:
-	go build
+	go build -o go.anx.io cmd/main.go

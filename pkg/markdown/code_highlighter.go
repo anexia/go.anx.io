@@ -1,4 +1,4 @@
-package main
+package markdown
 
 import (
 	"fmt"
@@ -16,8 +16,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-var chromaStyleDark = styles.Get("monokai")
-var chromaStyleLight = styles.Get("monokailight")
+var chromaStyle = styles.Get("monokailight")
 
 var chromaFormatterOpts = []html.Option{
 	html.Standalone(false),
@@ -28,9 +27,8 @@ var chromaFormatterOpts = []html.Option{
 }
 
 // codeHighlighterImpl implements an extension for goldmark to make code blocks with
-// syntax highlighting. We are not using github.com/yuin/goldmark-highlighting to be
-// able to have links to line numbers (we have to count code blocks for that) and have
-// support for two styles (light and dark).
+// syntax highlighting. We are not using github.com/yuin/goldmark-highlighting to
+// enable links to line numbers (we have to count code blocks for that).
 // Also I wrote this before finding the existing extension ...
 //  -- Mara @LittleFox94 Grosch, 2021-12-15
 type codeHighlighterImpl struct {
@@ -99,19 +97,11 @@ func (ch *codeHighlighterImpl) renderHighlightedCode(w util.BufWriter, source []
 		append(chromaFormatterOpts, html.LinkableLineNumbers(true, codeLinkID))...,
 	)
 
-	return ast.WalkContinue, formatter.Format(w, chromaStyleDark, tokens)
+	return ast.WalkContinue, formatter.Format(w, chromaStyle, tokens)
 }
 
-func renderChromaCSS(style string, w io.Writer) error {
+func RenderCodeCSS(w io.Writer) error {
 	formatter := html.New(chromaFormatterOpts...)
 
-	var s *chroma.Style
-	switch style {
-	case "light":
-		s = chromaStyleLight
-	case "dark":
-		s = chromaStyleDark
-	}
-
-	return formatter.WriteCSS(w, s)
+	return formatter.WriteCSS(w, chromaStyle)
 }

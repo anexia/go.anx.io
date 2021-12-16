@@ -1,11 +1,10 @@
-package main
+package markdown
 
 import (
 	"bytes"
 	"fmt"
 	"html/template"
 	"os"
-	"strings"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -14,7 +13,7 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
-func renderMarkdown(contents string) (template.HTML, error) {
+func RenderMarkdown(contents string) (template.HTML, error) {
 	highlighter := codeHighlighter()
 
 	md := goldmark.New(
@@ -36,7 +35,7 @@ func renderMarkdown(contents string) (template.HTML, error) {
 	return template.HTML(buffer.Bytes()), nil
 }
 
-func extractFirstHeader(contents string) (string, error) {
+func ExtractFirstHeader(contents string) (string, error) {
 	doc := goldmark.DefaultParser().Parse(text.NewReader([]byte(contents)))
 
 	n := doc.FirstChild()
@@ -55,8 +54,4 @@ func extractFirstHeader(contents string) (string, error) {
 	}
 
 	return "", fmt.Errorf("%w: no heading found", os.ErrNotExist)
-}
-
-func removeGitRepoSuffix(repo string) string {
-	return strings.TrimSuffix(repo, ".git")
 }

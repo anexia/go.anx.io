@@ -1,6 +1,6 @@
 {{- define "title" -}}
     go.anx.io/{{- .Package.TargetName -}}
-    {{- with .Content.Markdown }} - {{ . | extractFirstHeader -}}{{- end -}}
+    {{- with .MarkdownContent}} - {{ . | extractFirstHeader -}}{{- end -}}
 {{- end -}}
 
 {{- define "headerTitle" -}}
@@ -32,7 +32,7 @@
                 <li role="option" aria-selected="false">{{/* line break remover */ -}}
                   <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}" class="latestVersion">latest release</a>{{/* line break remover */ -}}
                 </li>
-                {{ range .Package.Versions -}}
+                {{ range .Package.FileReader.Versions -}}
                   {{- if ne . $.CurrentVersion -}}
                     <li role="option" aria-selected="false">
                       <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ . }}">{{ . }}</a>{{/* line break remover */ -}}
@@ -48,3 +48,5 @@
 
 {{- define "packages" -}}
 {{- end -}}
+
+{{ template "layout" . }}
