@@ -18,6 +18,9 @@ import (
 	"github.com/anexia-it/go.anx.io/pkg/types"
 )
 
+var version = "dev"
+var sourceURL = ""
+
 func main() {
 	workdir, err := os.Getwd()
 	if err != nil {
@@ -65,6 +68,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error initializing Renderer: %v", err)
 	}
+	renderer.SetBuildInfo(version, sourceURL)
 
 	switch *mode {
 	case "serve":

@@ -278,10 +278,14 @@ section.packages article footer a:hover {
 }
 
 body > footer {
-  text-align: right;
   color: white;
   font-size: 12px;
   margin-bottom: 40px;
+  clear: both;
+}
+
+body > footer .copyright {
+  float: right;
 }
 
 hr {

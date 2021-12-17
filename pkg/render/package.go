@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/anexia-it/go.anx.io/pkg/types"
 )
@@ -34,7 +33,6 @@ func (r *Renderer) renderPackageFile(pkg *types.Package, filePath string, writer
 
 	data := packageTemplateData{
 		layoutTemplateData: layoutTemplateData{
-			CurrentYear: time.Now().Year(),
 			CurrentFile: filePath,
 		},
 		Package:        pkg,
@@ -49,6 +47,6 @@ func (r *Renderer) renderPackageFile(pkg *types.Package, filePath string, writer
 			return err
 		}
 
-		return r.templates["package.tmpl"].Execute(writer, data)
+		return r.executeTemplate(writer, "package.tmpl", data)
 	}
 }

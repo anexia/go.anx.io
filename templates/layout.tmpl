@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <title>
-      {{- block "title" . }}
+      {{- block "title" .PageData }}
           go.anx.io - go packages by Anexia
       {{ end -}}
     </title>
@@ -11,21 +11,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <link rel="stylesheet" type="text/css" href="/chroma/style.css">
-    {{- block "meta" . }}
+    {{- block "meta" .PageData }}
     {{ end -}}
   </head>
   <body>
     <header>
       <h1>
-      {{- block "headerTitle" . -}}
+      {{- block "headerTitle" .PageData -}}
         {{- template "title" . -}}
       {{- end -}}
       </h1>
-      {{- block "header" . }}
+      {{- block "header" .PageData }}
       {{- end }}
     </header>
     <main>
-      {{ block "content" . }}
+      {{ block "content" .PageData }}
         {{- with .MarkdownContent }}
           {{- . | renderMarkdown -}}
         {{- end }}
@@ -33,7 +33,14 @@
     </main>
     <footer>
       <hr />
-      &copy; 2006 - {{ .CurrentYear }} Anexia Internetdienstleistungs GmbH
+      <span class="buildinfo">Generated on {{ .CurrentTime | formatDate }} from 
+        {{ if .SourceURL -}}
+          <a href="{{ .SourceURL }}">{{ .Version }}</a>
+        {{- else -}}
+          {{- .Version -}}
+        {{- end -}}
+      </span>
+      <span class="copyright">&copy; 2006 - {{ .CurrentTime.Year }} Anexia Internetdienstleistungs GmbH</span>
     </footer>
   </body>
 </html>

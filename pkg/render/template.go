@@ -2,28 +2,42 @@ package render
 
 import (
 	"fmt"
-	"html/template"
+	"io"
 	"io/fs"
 	"os"
 	"path"
+	"time"
+
+	"html/template"
 
 	"github.com/anexia-it/go.anx.io/pkg/markdown"
 )
 
 type layoutTemplateData struct {
-	Title       string
-	CurrentFile string
-	CurrentYear int
-
+	Title           string
+	CurrentFile     string
 	MarkdownContent string
+}
+
+type commonTemplateData struct {
+	CurrentTime time.Time
+	PageData    interface{}
+
+	Version   string
+	SourceURL string
 }
 
 func loadTemplates(templatePath string) (map[string]*template.Template, error) {
 	baseTemplate, err := template.New("").Funcs(template.FuncMap{
+		"formatDate":          formatDate,
 		"renderMarkdown":      markdown.RenderMarkdown,
 		"extractFirstHeader":  markdown.ExtractFirstHeader,
 		"removeGitRepoSuffix": RemoveGitRepoSuffix,
 	}).ParseFiles(path.Join(templatePath, "layout.tmpl"))
+
+	if err != nil {
+		return nil, fmt.Errorf("error parsing layout template: %w", err)
+	}
 
 	files, err := fs.Glob(os.DirFS(templatePath), "*.tmpl")
 
@@ -50,4 +64,22 @@ func loadTemplates(templatePath string) (map[string]*template.Template, error) {
 	}
 
 	return ret, nil
+}
+
+func (r *Renderer) executeTemplate(w io.Writer, name string, data interface{}) error {
+	var tmpl *template.Template
+	if t, ok := r.templates[name]; !ok {
+		return &template.Error{
+			ErrorCode: template.ErrNoSuchTemplate,
+		}
+	} else {
+		tmpl = t
+	}
+
+	return tmpl.Execute(w, commonTemplateData{
+		CurrentTime: time.Now(),
+		Version:     r.version,
+		SourceURL:   r.sourceURL,
+		PageData:    data,
+	})
 }

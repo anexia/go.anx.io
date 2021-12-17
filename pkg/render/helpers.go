@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func RemoveGitRepoSuffix(repo string) string {
@@ -22,4 +23,8 @@ func renderContent(content string, filePath string, data *layoutTemplateData) er
 	}
 
 	return nil
+}
+
+func formatDate(t time.Time) string {
+	return t.Format("2006-01-02")
 }

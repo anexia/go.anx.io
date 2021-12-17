@@ -15,6 +15,9 @@ jobs:
         go-version: 1.17
 
     - run: make generate
+      env:
+        VERSION: ${{ github.ref_name }}
+        SOURCE_URL: https://github.com/${{ github.repository }}/tree/${{ github.sha }}
 
     - name: deploy to github pages
       uses: peaceiris/actions-gh-pages@v3

@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path"
-	"time"
 
 	"github.com/anexia-it/go.anx.io/pkg/markdown"
 	"github.com/anexia-it/go.anx.io/pkg/types"
@@ -16,7 +15,7 @@ type mainTemplateData struct {
 	Packages []*types.Package
 }
 
-func (r Renderer) renderContentFile(filePath string, writer io.Writer) error {
+func (r *Renderer) renderContentFile(filePath string, writer io.Writer) error {
 
 	if filePath == "" {
 		filePath = "index.md"
@@ -29,7 +28,6 @@ func (r Renderer) renderContentFile(filePath string, writer io.Writer) error {
 	} else {
 		data := mainTemplateData{
 			layoutTemplateData: layoutTemplateData{
-				CurrentYear: time.Now().Year(),
 				CurrentFile: filePath,
 			},
 			Packages: r.packages,
@@ -40,6 +38,6 @@ func (r Renderer) renderContentFile(filePath string, writer io.Writer) error {
 			return err
 		}
 
-		return r.templates["main.tmpl"].Execute(writer, data)
+		return r.executeTemplate(writer, "main.tmpl", data)
 	}
 }
