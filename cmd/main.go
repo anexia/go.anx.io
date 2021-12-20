@@ -111,7 +111,7 @@ func servePackage(pkg *types.Package, renderer *render.Renderer) {
 		buffer := bytes.Buffer{}
 		if err := renderer.RenderFile(pkg, filePath, &buffer); err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			res.Write([]byte(err.Error()))
+			_, _ = res.Write([]byte(err.Error()))
 		} else {
 			if strings.HasSuffix(filePath, ".css") {
 				res.Header().Add("Content-Type", "text/css; charset=utf-8")
@@ -120,7 +120,7 @@ func servePackage(pkg *types.Package, renderer *render.Renderer) {
 			}
 
 			res.WriteHeader(http.StatusOK)
-			res.Write(buffer.Bytes())
+			_, _ = res.Write(buffer.Bytes())
 		}
 	})
 }
