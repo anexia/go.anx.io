@@ -4,7 +4,7 @@ This repository holds the templates and configuration for our go vanity URL webs
 
 ### Contributing
 
-Contributions are welcomed! Read the [Contributing Guide](CONTRIBUTING.md) for more information.
+Contributions are welcome! Read the [Contributing Guide](CONTRIBUTING.md) for more information.
 
 ### Licensing
 
