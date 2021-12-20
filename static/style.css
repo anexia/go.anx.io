@@ -161,6 +161,8 @@ menu.dropdown:focus-within li:hover a {
   color: white;
 }
 
+menu.dropdown:focus-within > li a,
+menu.dropdown:hover > li a,
 menu.dropdown:focus-within > li a:hover,
 menu.dropdown:hover > li a:hover {
   border-bottom: none;
