@@ -78,55 +78,52 @@ body > header h1 {
 }
 
 body > header > nav {
-  position: relative;
+  display: flex;
+  gap: 20px;
+
   line-height: 1em;
   padding-left: 1em;
   padding-right: 1em;
   margin-bottom: 1em;
 }
 
+body > header nav label {
+  display: inline-block;
+}
+
 body > header nav a {
   text-decoration: none;
+  border-bottom: 1px solid transparent;
 }
 
 body > header nav a:hover {
   border-bottom: 1px solid #77BC1F;
 }
 
-body > header nav ul {
-  padding: 0;
-  clear: both;
-}
-
-body > header nav li {
-  list-style: none;
-  margin-right: 20px;
-}
-
-body > header nav li.common {
-  list-style: none;
-  margin-left: 20px;
+body > header nav a.common {
+  margin-left: auto;
   margin-right: 0;
-  float: right;
 }
 
 body > header nav > ul > li {
   display: inline-block;
 }
 
-nav[role=combobox] {
+div[role=combobox] {
   display: inline-block;
+  position: relative;
+  height: 1em;
 }
 
 menu.dropdown {
-  max-height: 1em;
   line-height: 1em;
-  overflow: hidden;
   width: max-content;
 
+  display: inline-block;
   position: absolute;
   padding: 0;
   margin: 0;
+  margin-left: 0.5em;
   top: 0;
 
   transition: all 0.1s ease-in-out;
@@ -137,10 +134,14 @@ menu.dropdown li {
   opacity: 0;
   transition: all 0.1s ease-in-out;
   margin-right: 0;
-  padding-left: 0.5em;
+  padding-left: 1.5em;
   padding-right: 0.5em;
   line-height: 1.25em;
   bottom: 0;
+}
+
+menu.dropdown:not(:hover):not(:focus-within) li {
+  padding-left: 0;
 }
 
 menu.dropdown:hover li a,
@@ -151,7 +152,6 @@ menu.dropdown:focus-within li a {
   height: 100%;
   padding-top: 0.25em;
   padding-bottom: 0.25em;
-  padding-left: 1.5em;
   box-sizing: border-box;
   transition: all .1s ease-in-out;
 }
@@ -166,12 +166,12 @@ menu.dropdown:hover > li a:hover {
   border-bottom: none;
 }
 
-menu.dropdown li:first-child {
+menu.dropdown li[aria-selected="true"] {
   margin-top: 0;
   line-height: 1em;
 }
 
-menu.dropdown li:first-child,
+menu.dropdown li[aria-selected="true"],
 menu.dropdown:hover li,
 menu.dropdown:focus-within li {
   display: block;
@@ -205,18 +205,33 @@ menu.dropdown:hover > li:hover {
   background-color: #77BC1F
 }
 
-menu.dropdown:focus-within > li[aria-selected="true"]:hover a,
-menu.dropdown:hover > li[aria-selected="true"]:hover a {
-  background-image: url(check-white.svg);
+menu.dropdown:focus-within > li[aria-selected="true"] a:before,
+menu.dropdown:hover > li[aria-selected="true"] a:before {
+  content: '\2713';
+  display: inline-block;
+  width: 1em;
+  color: #77BC1F;
+  margin-left: -1em;
 }
 
-menu.dropdown:focus-within > li[aria-selected="true"] a,
-menu.dropdown:hover > li[aria-selected="true"] a {
-  content: '';
-  background-image: url(check-green.svg);
-  background-size: 1em 1em;
-  background-position: 0 50%;
-  background-repeat: no-repeat;
+menu.dropdown:focus-within > li[aria-selected="true"]:hover a:before,
+menu.dropdown:hover > li[aria-selected="true"]:hover a:before {
+  color: white;
+}
+
+menu.dropdown li.majorVersion {
+  font-weight: bold;
+  padding-left: 0.5em;
+}
+
+.outdatedVersionNotice {
+  display: inline-block;
+  margin: 1em;
+  margin-top: 0;
+}
+
+.outdatedVersionNotice:before {
+  content: '🛈';
 }
 
 body > main {
@@ -224,6 +239,10 @@ body > main {
   margin: auto;
   background: white;
   line-height: 1.5em;
+}
+
+body > main img {
+  max-width: 100%;
 }
 
 main h1,
@@ -235,9 +254,9 @@ main h3 {
   color: #696969;
 }
 
-main h1,
-main h2,
-main h3 {
+main h1:not(:first-child),
+main h2:not(:first-child),
+main h3:not(:first-child) {
   margin-top: 2em;
 }
 

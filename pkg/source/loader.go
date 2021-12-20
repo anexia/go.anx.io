@@ -90,7 +90,7 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 	} else {
 		type tagVersion struct {
 			tag     *gitPlumbing.Reference
-			version *semver.Version
+			version string
 		}
 
 		tags := make([]tagVersion, 0)
@@ -114,10 +114,10 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 			}
 
 			// parse tag as semver to filter on only release tags
-			if v, err := semver.NewVersion(strings.TrimPrefix(tag.Name().Short(), "v")); err == nil {
+			if _, err := semver.NewVersion(strings.TrimPrefix(tag.Name().Short(), "v")); err == nil {
 				tags = append(tags, tagVersion{
 					tag:     tag,
-					version: v,
+					version: tag.Name().Short(),
 				})
 			} else {
 				log.Printf("Not using tag %v due to error %v", tag.Name().Short(), err)
@@ -136,7 +136,7 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 
 		if len(tags) > 0 {
 			for _, v := range tags {
-				fileReader.versions[v.version.String()] = v.tag
+				fileReader.versions[v.version] = v.tag
 			}
 		}
 
@@ -153,13 +153,16 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 			return fmt.Errorf("error iterating branches in local git repository: %w", err)
 		}
 
+		if err := fileReader.readMajorVersions(); err != nil {
+			return fmt.Errorf("failed to retrieve versions of package '%v': %w", pkg.TargetName, err)
+		}
+
 		pkg.FileReader = &fileReader
 
 		if pkg.Summary == "" {
-			contents, err := fileReader.ReadFile("README.md", fileReader.Versions()[0])
+			contents, err := fileReader.ReadFile("README.md", fileReader.Versions(fileReader.MajorVersions()[0])[0])
 			if err == nil {
-				pkg.Summary, _ = markdown.ExtractFirstHeader(string(contents))
-				// ignoring error on purpose - it either works or we don't have a summary
+				pkg.Summary = markdown.ExtractFirstHeader(string(contents))
 			}
 		}
 

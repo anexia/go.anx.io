@@ -30,14 +30,17 @@ func main() {
 
 	templateDirDefault := ""
 	staticDirDefault := ""
+	contentPathDefault := ""
 	if workdir != "" {
 		templateDirDefault = path.Join(workdir, "templates")
 		staticDirDefault = path.Join(workdir, "static")
+		contentPathDefault = path.Join(workdir, "content")
 	}
 
 	mode := flag.String("mode", "generate", "Mode to run this into (generate|serve)")
 	configFile := flag.String("config-file", "packages.yaml", "Path to config file to use")
 	templateDirPath := flag.String("template-directory", templateDirDefault, "Path to directory containing the templates")
+	contentPath := flag.String("content-directory", contentPathDefault, "Path to directory containing the content files")
 	staticDirPath := flag.String("static-directory", staticDirDefault, "Path to directory containing the static files")
 	sourceCache := flag.String("source-cache", "source-cache", "Path to where to cache sources")
 	listenAddress := flag.String("listen-address", "localhost:1312", "Address to listen on in serve mode")
@@ -64,7 +67,7 @@ func main() {
 		log.Fatalf("Error loading sources: %v", err)
 	}
 
-	renderer, err := render.NewRenderer(*templateDirPath, packages)
+	renderer, err := render.NewRenderer(*templateDirPath, *contentPath, packages)
 	if err != nil {
 		log.Fatalf("Error initializing Renderer: %v", err)
 	}
@@ -85,7 +88,7 @@ func main() {
 			log.Fatalf("Error starting http server: %v", err)
 		}
 	case "generate":
-		if err := renderFiles(renderer, packages, *destinationPath); err != nil {
+		if err := renderer.GenerateFiles(*destinationPath); err != nil {
 			log.Fatalf("Error rendering files: %v", err)
 		}
 
@@ -120,109 +123,6 @@ func servePackage(pkg *types.Package, renderer *render.Renderer) {
 			res.Write(buffer.Bytes())
 		}
 	})
-}
-
-func renderFiles(renderer *render.Renderer, pkgs []*types.Package, destinationPath string) error {
-	for _, pkg := range pkgs {
-		pkgPath := path.Join(destinationPath, pkg.TargetName)
-		if err := os.MkdirAll(pkgPath, os.ModeDir|0755); err != nil {
-			return err
-		}
-
-		// we generate "unversioned/latest" and all defined versions
-		versions := []string{""}
-		versions = append(versions, pkg.FileReader.Versions()...)
-
-		// lists the files we want for every version
-		versionedFiles := []string{"README.md"}
-
-		files := make([]string, 0, (len(versions)*len(versionedFiles))+1)
-		files = append(files, "") // we always want index
-
-		for _, v := range versions {
-			for _, vf := range versionedFiles {
-				if v != "" {
-					files = append(files, fmt.Sprintf("%v@%v", vf, v))
-				} else {
-					files = append(files, vf)
-				}
-			}
-		}
-
-		for _, f := range files {
-			// Every "file" is actually a directory in which we place an index.html.
-			// This is needed since we want `README.md` in path, but serving HTML. On GitHub Pages we cannot
-			// configure the MIME type, so we have to serve a file with html extension - our `index.html`.
-			destinationDirectory := path.Join(pkgPath, f)
-			err := os.MkdirAll(destinationDirectory, 0755)
-			if err != nil {
-				return err
-			}
-
-			destinationFile := path.Join(destinationDirectory, "index.html")
-			w, err := os.OpenFile(destinationFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-			if err != nil {
-				return err
-			}
-
-			err = renderer.RenderFile(pkg, f, w)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	if contentFiles, err := fs.Glob(os.DirFS("content"), "*"); err != nil {
-		return nil
-	} else {
-		for _, f := range contentFiles {
-			if f == "index.md" {
-				f = ""
-			}
-
-			// Every "file" is actually a directory in which we place an index.html.
-			// This is needed since we want `README.md` in path, but serving HTML. On GitHub Pages we cannot
-			// configure the MIME type, so we have to serve a file with html extension - our `index.html`.
-			destinationDirectory := path.Join(destinationPath, f)
-			err := os.MkdirAll(destinationDirectory, 0755)
-			if err != nil {
-				return err
-			}
-
-			destinationFile := path.Join(destinationDirectory, "index.html")
-			w, err := os.OpenFile(destinationFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-			if err != nil {
-				return err
-			}
-
-			err = renderer.RenderFile(nil, f, w)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	generatedStaticFiles := []string{"chroma/style.css"}
-	for _, f := range generatedStaticFiles {
-		destinationDirectory := path.Join(destinationPath, path.Dir(f))
-		err := os.MkdirAll(destinationDirectory, 0755)
-		if err != nil {
-			return err
-		}
-
-		destinationFile := path.Join(destinationPath, f)
-		w, err := os.OpenFile(destinationFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		if err != nil {
-			return err
-		}
-
-		err = renderer.RenderFile(nil, f, w)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func copyStaticFiles(staticPath string, destinationPath string) error {

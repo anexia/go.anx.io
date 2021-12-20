@@ -1,14 +1,18 @@
 {{- define "title" -}}
     go.anx.io/{{- .Package.TargetName -}}
-    {{- with .MarkdownContent}} - {{ . | extractFirstHeader -}}{{- end -}}
+    {{- with .MajorVersion }}/{{ . }}{{ end -}}
+    {{- with .MarkdownContent | extractFirstHeader }} - {{ . -}}{{- end -}}
 {{- end -}}
 
 {{- define "headerTitle" -}}
     go.anx.io/{{- .Package.TargetName -}}
+    {{- with .MajorVersion }}/{{ . }}{{ end -}}
 {{- end -}}
 
 {{ define "meta" }}
-    <meta name="go-import" content="go.anx.io/{{ .Package.TargetName }} {{ .Package.Source }}
+    <meta name="go-import" content="go.anx.io/{{ .Package.TargetName -}}
+    {{- with .MajorVersion }}/{{ . }} {{ end -}}
+    git {{ .Package.Source }}
     {{- with .Package.Source | removeGitRepoSuffix }} {{/* line break trim comment */ -}}
         {{ . }}/tree/{{ $.CurrentVersion }} {{/* line break trim comment */ -}}
         {{ . }}/tree/{{ $.CurrentVersion }}/{{ $.CurrentFile }}
@@ -16,34 +20,54 @@
 {{ end }}
 
 {{ define "header" }}
+{{- $highestMajorVersion := index .Package.FileReader.MajorVersions  0 -}}
       <hr />
       <nav>
-        <ul>
-          <li><a href="https://pkg.go.dev/go.anx.io/{{ .Package.TargetName }}@{{ .CurrentVersion }}">API documentation</a></li>
-          <li><a href="{{ .Package.Source | removeGitRepoSuffix }}">Source repository</a></li>
-          <li>
-            <label id="versionLabel">Version:</label>
-            <nav role="combobox">
-              <menu class="dropdown" role="listbox" aria-labelledby="versionLabel">
-                <li role="option" aria-selected="true">
-                  <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ .CurrentVersion }}">{{ .CurrentVersion }}</a>{{/* line break remover */ -}}
-                </li>
-                <li role="option" aria-selected="false">{{/* line break remover */ -}}
-                  <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}" class="latestVersion">latest release</a>{{/* line break remover */ -}}
-                </li>
-                {{ range .Package.FileReader.Versions -}}
-                  {{- if ne . $.CurrentVersion -}}
-                    <li role="option" aria-selected="false">
-                      <a href="/{{ $.Package.TargetName }}/{{ $.CurrentFile }}@{{ . }}">{{ . }}</a>{{/* line break remover */ -}}
-                    </li>
+        <a href="https://pkg.go.dev/go.anx.io/{{ .Package.TargetName }}@{{ .CurrentVersion }}">API documentation</a>
+        <a href="{{ .Package.Source | removeGitRepoSuffix }}">Source repository</a>
+        <div role="combobox">
+          <label id="versionLabel">Version:</label>
+          <menu class="dropdown" role="listbox" aria-labelledby="versionLabel">
+            {{ range $major := .Package.FileReader.MajorVersions -}}
+              <li role="option" aria-selected="false" class="majorVersion">
+                <a href="/
+                  {{- $.Package.TargetName }}/
+                  {{- if ne . "" -}}
+                    {{ . }}/
                   {{- end -}}
-                {{ end -}}
-              </menu>
-            </nav>
-          </li>
-          <li class="common"><a href="/">Discover more packages</a></li>
-        </ul>
+                  {{ $.CurrentFile }}">{{ . | default "v1" }}</a>
+              </li>
+              {{ range $.Package.FileReader.Versions . -}}
+                <li role="option" aria-selected="
+                  {{- if eq . $.CurrentVersion -}}
+                    true
+                  {{- else -}}
+                    false
+                  {{- end -}}
+                  ">
+                  <a href="/
+                    {{- $.Package.TargetName }}/
+                    {{- if ne $major "" -}}
+                      {{ $major }}/
+                    {{- end -}}
+                    {{ $.CurrentFile }}@{{ . }}">{{ . }}</a>
+                </li>
+              {{ end -}}
+            {{ end -}}
+          </menu>
+        </div>
+        <a class="common" href="/">Discover more packages</a>
       </nav>
+    {{ if ne .MajorVersion $highestMajorVersion }}
+      <span class="outdatedVersionNotice">
+        The highest tagged major version is <a href="/
+          {{- $.Package.TargetName }}/
+          {{- if ne $highestMajorVersion "" -}}
+            {{ $highestMajorVersion }}/
+          {{- end -}}
+          {{ $.CurrentFile }}">{{ $highestMajorVersion | default "v1" }}</a>.
+      </span>
+    {{- end }}
 {{- end }}
 
 {{- define "packages" -}}

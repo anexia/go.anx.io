@@ -2,9 +2,9 @@ package markdown
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
-	"os"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -12,6 +12,8 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 )
+
+var ErrNoHeadingFound = errors.New("no heading found")
 
 func RenderMarkdown(contents string) (template.HTML, error) {
 	highlighter := codeHighlighter()
@@ -35,7 +37,7 @@ func RenderMarkdown(contents string) (template.HTML, error) {
 	return template.HTML(buffer.Bytes()), nil
 }
 
-func ExtractFirstHeader(contents string) (string, error) {
+func ExtractFirstHeader(contents string) string {
 	doc := goldmark.DefaultParser().Parse(text.NewReader([]byte(contents)))
 
 	n := doc.FirstChild()
@@ -43,9 +45,9 @@ func ExtractFirstHeader(contents string) (string, error) {
 		if n.Kind() == ast.KindHeading {
 			if n.(*ast.Heading).Level == 1 {
 				if text, ok := n.FirstChild().(*ast.Text); ok {
-					return string(text.Text([]byte(contents))), nil
+					return string(text.Text([]byte(contents)))
 				} else if code, ok := n.FirstChild().(*ast.CodeSpan); ok {
-					return string(code.Text([]byte(contents))), nil
+					return string(code.Text([]byte(contents)))
 				}
 			}
 		}
@@ -53,5 +55,5 @@ func ExtractFirstHeader(contents string) (string, error) {
 		n = n.NextSibling()
 	}
 
-	return "", fmt.Errorf("%w: no heading found", os.ErrNotExist)
+	return ""
 }

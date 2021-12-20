@@ -33,6 +33,13 @@ func loadTemplates(templatePath string) (map[string]*template.Template, error) {
 		"renderMarkdown":      markdown.RenderMarkdown,
 		"extractFirstHeader":  markdown.ExtractFirstHeader,
 		"removeGitRepoSuffix": RemoveGitRepoSuffix,
+		"default": func(d string, v string) string {
+			if v == "" {
+				return d
+			}
+
+			return v
+		},
 	}).ParseFiles(path.Join(templatePath, "layout.tmpl"))
 
 	if err != nil {

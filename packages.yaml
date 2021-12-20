@@ -1,1 +1,3 @@
 - source: https://github.com/anexia-it/go-anxcloud.git
+- source: https://github.com/anexia-it/go-cloudlog.git
+- source: https://github.com/anexia-it/go-e5e.git

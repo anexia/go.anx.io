@@ -8,22 +8,24 @@ import (
 )
 
 type Renderer struct {
-	templates map[string]*template.Template
-	packages  []*types.Package
+	templates   map[string]*template.Template
+	packages    []*types.Package
+	contentPath string
 
 	version   string
 	sourceURL string
 }
 
-func NewRenderer(templatePath string, packages []*types.Package) (*Renderer, error) {
+func NewRenderer(templatePath string, contentPath string, packages []*types.Package) (*Renderer, error) {
 	templates, err := loadTemplates(templatePath)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Renderer{
-		templates: templates,
-		packages:  packages,
+		templates:   templates,
+		packages:    packages,
+		contentPath: contentPath,
 	}, nil
 }
 

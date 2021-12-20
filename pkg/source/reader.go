@@ -1,20 +1,59 @@
 package source
 
 import (
+	"errors"
 	"fmt"
-	"sort"
-	"strings"
+	"path"
+	"regexp"
 
 	git "github.com/go-git/go-git/v5"
 	gitPlumbing "github.com/go-git/go-git/v5/plumbing"
+	gitObject "github.com/go-git/go-git/v5/plumbing/object"
 
-	"github.com/Masterminds/semver/v3"
+	"golang.org/x/mod/modfile"
 )
 
 // repositoryReader is an implementation of VersionedFileReader for git repositories.
 type repositoryReader struct {
-	repository *git.Repository
-	versions   map[string]*gitPlumbing.Reference
+	repository    *git.Repository
+	majorVersions map[string][]string
+	versions      map[string]*gitPlumbing.Reference
+}
+
+func (r *repositoryReader) readMajorVersions() error {
+	r.majorVersions = make(map[string][]string)
+
+	for version := range r.versions {
+		fileContents, err := r.ReadFile("go.mod", version)
+		if isNotFound := errors.Is(err, gitObject.ErrEntryNotFound); err != nil && !isNotFound {
+			return err
+		} else if isNotFound {
+			continue
+		}
+
+		file, err := modfile.Parse(fmt.Sprintf("go.mod@%v", version), fileContents, nil)
+		if err != nil {
+			return err
+		}
+
+		maybeMajor := path.Base(file.Module.Mod.Path)
+
+		if !regexp.MustCompile(`^v\d+$`).MatchString(maybeMajor) {
+			maybeMajor = ""
+		}
+
+		if _, ok := r.majorVersions[maybeMajor]; !ok {
+			r.majorVersions[maybeMajor] = make([]string, 0)
+		}
+
+		r.majorVersions[maybeMajor] = append(r.majorVersions[maybeMajor], version)
+	}
+
+	for major := range r.majorVersions {
+		sortVersions(r.majorVersions[major])
+	}
+
+	return nil
 }
 
 // ReadFile implements VersionedFileReader
@@ -55,35 +94,22 @@ func (r repositoryReader) ReadFile(path, version string) ([]byte, error) {
 	return []byte(contents), err
 }
 
-func (r repositoryReader) Versions() []string {
-	ret := make([]string, 0, len(r.versions))
+func (r repositoryReader) MajorVersions() []string {
+	ret := make([]string, 0, len(r.majorVersions))
 
-	for v := range r.versions {
+	for v := range r.majorVersions {
 		ret = append(ret, v)
 	}
 
-	sort.Slice(ret, func(a int, b int) bool {
-		verA, errA := semver.NewVersion(ret[a])
-		verB, errB := semver.NewVersion(ret[b])
-
-		if errA == nil && errB != nil {
-			return true
-		} else if errB == nil && errA != nil {
-			return false
-		} else if verA == verB && verA == nil {
-			if ret[a] == "main" {
-				return true
-			} else if ret[b] == "main" {
-				return false
-			} else if ret[a] == "master" {
-				return false
-			}
-
-			return strings.Compare(ret[a], ret[b]) > 0
-		} else {
-			return verA.Compare(verB) > 0
-		}
-	})
+	sortVersions(ret)
 
 	return ret
+}
+
+func (r repositoryReader) Versions(major string) []string {
+	if v, ok := r.majorVersions[major]; ok {
+		return v
+	} else {
+		return nil
+	}
 }
