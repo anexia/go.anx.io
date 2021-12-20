@@ -11,9 +11,10 @@
 
 {{ define "meta" }}
     <meta name="go-import" content="go.anx.io/{{ .Package.TargetName -}}
-    {{- with .MajorVersion }}/{{ . }} {{ end -}}
-    git {{ .Package.Source }}
+                {{- with .MajorVersion }}/{{ . }}{{ end }} git {{ .Package.Source }}">
+    <meta name="go-source" content="go.anx.io/{{ .Package.TargetName -}}
     {{- with .Package.Source | removeGitRepoSuffix }} {{/* line break trim comment */ -}}
+        {{ . }} {{/* line break trim comment */ -}}
         {{ . }}/tree/{{ $.CurrentVersion }} {{/* line break trim comment */ -}}
         {{ . }}/tree/{{ $.CurrentVersion }}/{{ $.CurrentFile }}
     {{- end -}}">
