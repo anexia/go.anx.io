@@ -65,6 +65,7 @@ jobs:
     if: ${{ github.ref_name == 'main' }}
     needs:
     - build
+    - test
     steps:
       # - uses: actions/deploy-pages@v1-beta
     - name: download artifacts
