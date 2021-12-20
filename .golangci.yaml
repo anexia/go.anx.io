@@ -1,0 +1,12 @@
+linters:
+  enable-all: true
+  disable:
+  - exhaustivestruct
+  - funlen
+  - gci
+  - goconst
+  - gochecknoglobals
+  - gofumpt
+  - gomnd
+  - lll
+  - nlreturn

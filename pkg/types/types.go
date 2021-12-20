@@ -4,7 +4,7 @@ type VersionedFileReader interface {
 	MajorVersions() []string
 	Versions(major string) []string
 
-	ReadFile(path, version string) ([]byte, error)
+	ReadFile(path, version string) (string, error)
 }
 
 type Package struct {

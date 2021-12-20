@@ -9,25 +9,29 @@ import (
 
 func sortVersions(versions []string) {
 	sort.Slice(versions, func(a int, b int) bool {
-		verA, errA := semver.NewVersion(versions[a])
-		verB, errB := semver.NewVersion(versions[b])
+		verA, _ := semver.NewVersion(versions[a])
+		verB, _ := semver.NewVersion(versions[b])
 
-		if errA == nil && errB != nil {
-			return true
-		} else if errB == nil && errA != nil {
-			return false
-		} else if verA == verB && verA == nil {
-			if versions[a] == "main" {
-				return true
-			} else if versions[b] == "main" {
-				return false
-			} else if versions[a] == "master" {
-				return false
-			}
-
-			return strings.Compare(versions[a], versions[b]) > 0
-		} else {
+		switch {
+		case verA != nil && verB != nil:
 			return verA.Compare(verB) > 0
+		case verA != nil && verB == nil:
+			return true
+		case verA == nil && verB != nil:
+			return false
+		default:
+			switch {
+			case versions[a] == "main":
+				return true
+			case versions[b] == "main":
+				return false
+			case versions[a] == "master":
+				return true
+			case versions[b] == "master":
+				return false
+			default:
+				return strings.Compare(versions[a], versions[b]) > 0
+			}
 		}
 	})
 }

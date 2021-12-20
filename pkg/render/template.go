@@ -74,13 +74,11 @@ func loadTemplates(templatePath string) (map[string]*template.Template, error) {
 }
 
 func (r *Renderer) executeTemplate(w io.Writer, name string, data interface{}) error {
-	var tmpl *template.Template
-	if t, ok := r.templates[name]; !ok {
+	tmpl, ok := r.templates[name]
+	if !ok {
 		return &template.Error{
 			ErrorCode: template.ErrNoSuchTemplate,
 		}
-	} else {
-		tmpl = t
 	}
 
 	return tmpl.Execute(w, commonTemplateData{

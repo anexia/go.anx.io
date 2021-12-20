@@ -68,6 +68,7 @@ func (ch *codeHighlighterImpl) renderHighlightedCode(w util.BufWriter, source []
 	}
 
 	code := strings.Builder{}
+
 	for i := 0; i < node.Lines().Len(); i++ {
 		line := node.Lines().At(i)
 		code.Write(line.Value(source))
@@ -87,7 +88,7 @@ func (ch *codeHighlighterImpl) renderHighlightedCode(w util.BufWriter, source []
 
 	tokens, err := lexer.Tokenise(nil, code.String())
 	if err != nil {
-		return ast.WalkContinue, err
+		return ast.WalkContinue, err //nolint:wrapcheck
 	}
 
 	codeLinkID := fmt.Sprintf("code-%v-", ch.codeIDCounter)

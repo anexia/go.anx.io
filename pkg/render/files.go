@@ -21,14 +21,10 @@ func (r *Renderer) GenerateFiles(destPath string) error {
 	allFiles := make([]pkgFiles, 0, len(r.packages)+1)
 
 	for _, pkg := range r.packages {
-		if files, err := r.filesForPackage(pkg); err == nil {
-			allFiles = append(allFiles, pkgFiles{
-				pkg:   pkg,
-				files: files,
-			})
-		} else {
-			return err
-		}
+		allFiles = append(allFiles, pkgFiles{
+			pkg:   pkg,
+			files: r.filesForPackage(pkg),
+		})
 	}
 
 	if files, err := r.filesForContent(); err == nil {
@@ -62,24 +58,32 @@ func (r *Renderer) GenerateFiles(destPath string) error {
 				return fmt.Errorf("error creating directory %q: %w", destinationDirectory, err)
 			}
 
-			if w, err := os.OpenFile(destinationPath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644); err != nil {
-				return fmt.Errorf("error opening file %q (create|truncate|write): %w", destinationPath, err)
-			} else {
-				err := r.RenderFile(pkg, file, w)
-				if err != nil {
-					var pkgName string = "<nil>"
-					if pkg != nil {
-						pkgName = pkg.TargetName
-					}
-
-					return fmt.Errorf("error rendering file %q for package %q: %w", file, pkgName, err)
-				}
-
-				if err := w.Close(); err != nil {
-					return fmt.Errorf("error closing file %q after writing to it: %w", destinationPath, err)
-				}
+			if err := r.generateFile(pkg, destinationPath, file); err != nil {
+				return err
 			}
 		}
+	}
+
+	return nil
+}
+
+func (r *Renderer) generateFile(pkg *types.Package, dest, file string) error {
+	w, err := os.OpenFile(dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("error opening file %q (create|truncate|write): %w", dest, err)
+	}
+
+	if err := r.RenderFile(pkg, file, w); err != nil {
+		var pkgName string = "<nil>"
+		if pkg != nil {
+			pkgName = pkg.TargetName
+		}
+
+		return fmt.Errorf("error rendering file %q for package %q: %w", file, pkgName, err)
+	}
+
+	if err := w.Close(); err != nil {
+		return fmt.Errorf("error closing file %q after writing to it: %w", dest, err)
 	}
 
 	return nil
@@ -100,7 +104,7 @@ func fileExtensionNeedsMIMEHack(fileExt string) bool {
 
 	if idx >= len(mimeTypeHackExtensions) {
 		return false
-	} else {
-		return mimeTypeHackExtensions[idx] == fileExt
 	}
+
+	return mimeTypeHackExtensions[idx] == fileExt
 }

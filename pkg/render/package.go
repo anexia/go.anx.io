@@ -55,19 +55,20 @@ func (r *Renderer) renderPackageFile(pkg *types.Package, filePath string, writer
 	data.layoutTemplateData.CurrentFile = filePath
 	data.CurrentVersion = version
 
-	if content, err := pkg.FileReader.ReadFile(filePath, version); err != nil {
+	content, err := pkg.FileReader.ReadFile(filePath, version)
+	if err != nil {
 		return fmt.Errorf("error reading file '%v' of version '%v': %w", filePath, version, err)
-	} else {
-		err = renderContent(string(content), filePath, &data.layoutTemplateData)
-		if err != nil {
-			return err
-		}
-
-		return r.executeTemplate(writer, "package.tmpl", data)
 	}
+
+	err = renderContent(content, filePath, &data.layoutTemplateData)
+	if err != nil {
+		return err
+	}
+
+	return r.executeTemplate(writer, "package.tmpl", data)
 }
 
-func (r *Renderer) filesForPackage(pkg *types.Package) ([]string, error) {
+func (r *Renderer) filesForPackage(pkg *types.Package) []string {
 	// files we want for every version
 	versionedFiles := []string{"README.md"}
 
@@ -98,5 +99,5 @@ func (r *Renderer) filesForPackage(pkg *types.Package) ([]string, error) {
 		ret = append(ret, majorFiles...)
 	}
 
-	return ret, nil
+	return ret
 }

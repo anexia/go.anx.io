@@ -22,19 +22,16 @@ var version = "dev"
 var sourceURL = ""
 
 func main() {
-	workdir, err := os.Getwd()
-	if err != nil {
-		log.Printf("Cannot determine current working directory: %v", err)
-		workdir = ""
-	}
-
 	templateDirDefault := ""
 	staticDirDefault := ""
 	contentPathDefault := ""
-	if workdir != "" {
+
+	if workdir, err := os.Getwd(); err == nil {
 		templateDirDefault = path.Join(workdir, "templates")
 		staticDirDefault = path.Join(workdir, "static")
 		contentPathDefault = path.Join(workdir, "content")
+	} else {
+		log.Printf("Cannot determine current working directory: %v", err)
 	}
 
 	mode := flag.String("mode", "generate", "Mode to run this into (generate|serve)")
@@ -71,6 +68,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error initializing Renderer: %v", err)
 	}
+
 	renderer.SetBuildInfo(version, sourceURL)
 
 	switch *mode {
@@ -127,6 +125,7 @@ func servePackage(pkg *types.Package, renderer *render.Renderer) {
 
 func copyStaticFiles(staticPath string, destinationPath string) error {
 	staticFiles := os.DirFS(staticPath)
+
 	return fs.WalkDir(staticFiles, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			log.Fatalf("Error walking static files directory: %v", err)
@@ -135,23 +134,24 @@ func copyStaticFiles(staticPath string, destinationPath string) error {
 		if d.IsDir() {
 			err := os.MkdirAll(path.Join(destinationPath, "static", p), 0755)
 			if err != nil {
-				return err
+				return fmt.Errorf("error creating directory %q: %w", destinationPath, err)
 			}
-		} else {
-			r, err := os.Open(path.Join(staticPath, p))
-			if err != nil {
-				return err
-			}
+			return nil
+		}
 
-			w, err := os.OpenFile(path.Join(destinationPath, "static", p), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-			if err != nil {
-				return err
-			}
+		r, err := os.Open(path.Join(staticPath, p))
+		if err != nil {
+			return fmt.Errorf("error opening source file %q: %w", staticPath, err)
+		}
 
-			_, err = io.Copy(w, r)
-			if err != nil {
-				return err
-			}
+		w, err := os.OpenFile(path.Join(destinationPath, "static", p), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return fmt.Errorf("error opening destination file %q: %w", destinationPath, err)
+		}
+
+		_, err = io.Copy(w, r)
+		if err != nil {
+			return fmt.Errorf("error copying file data: %w", err)
 		}
 
 		return nil

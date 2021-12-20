@@ -34,6 +34,7 @@ func RenderMarkdown(contents string) (template.HTML, error) {
 		return "", fmt.Errorf("error processing markdown file to html: %w", err)
 	}
 
+	// #nosec
 	return template.HTML(buffer.Bytes()), nil
 }
 

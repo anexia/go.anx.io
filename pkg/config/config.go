@@ -16,11 +16,9 @@ func Load(filePath string) ([]*types.Package, error) {
 	ret := []*types.Package{}
 
 	if file, err := os.Open(filePath); err != nil {
-		return nil, err
-	} else {
-		if err := yaml.NewDecoder(file).Decode(&ret); err != nil {
-			return nil, err
-		}
+		return nil, fmt.Errorf("error opening config file %q: %w", filePath, err)
+	} else if err := yaml.NewDecoder(file).Decode(&ret); err != nil {
+		return nil, fmt.Errorf("error decoding config file %q: %w", filePath, err)
 	}
 
 	for _, pkg := range ret {

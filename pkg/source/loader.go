@@ -35,10 +35,8 @@ func NewLoader(cachePath string) (*Loader, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("error stat'ing cache path: %w", err)
-	} else {
-		if !stat.IsDir() {
-			return nil, fmt.Errorf("%w: cache path is not a directory", os.ErrInvalid)
-		}
+	} else if !stat.IsDir() {
+		return nil, fmt.Errorf("%w: cache path is not a directory", os.ErrInvalid)
 	}
 
 	return &Loader{
@@ -65,7 +63,7 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 	localPath := path.Join(l.cachePath, source.Host, source.Path)
 	repo, err := git.PlainOpen(localPath)
 
-	if err == git.ErrRepositoryNotExists {
+	if errors.Is(err, git.ErrRepositoryNotExists) {
 		repo, err = git.PlainClone(localPath, false, &git.CloneOptions{
 			URL:        source.String(),
 			NoCheckout: true,
@@ -81,93 +79,93 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 		Force:    true,
 		RefSpecs: []gitConfig.RefSpec{"refs/heads/*:refs/heads/*"},
 	})
-	if err != nil && err != git.NoErrAlreadyUpToDate {
+	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return fmt.Errorf("error fetching source repository: %w", err)
 	}
 
-	if iter, err := repo.Tags(); err != nil {
+	iter, err := repo.Tags()
+	if err != nil {
 		return fmt.Errorf("error iterating tags in local git repository: %w", err)
-	} else {
-		type tagVersion struct {
-			tag     *gitPlumbing.Reference
-			version string
+	}
+
+	type tagVersion struct {
+		tag     *gitPlumbing.Reference
+		version string
+	}
+
+	tags := make([]tagVersion, 0)
+
+	err = iter.ForEach(func(tag *gitPlumbing.Reference) error {
+		var commit gitPlumbing.Hash
+		if tagObject, err := repo.TagObject(tag.Hash()); err != nil {
+			commit = tag.Hash()
+		} else {
+			commit = tagObject.Target
 		}
 
-		tags := make([]tagVersion, 0)
-		err := iter.ForEach(func(tag *gitPlumbing.Reference) error {
-			var commit gitPlumbing.Hash
-			if tagObject, err := repo.TagObject(tag.Hash()); err != nil {
-				commit = tag.Hash()
-			} else {
-				commit = tagObject.Target
-			}
-
-			// first we check if we have a tree for this tag
-			if commit, err := repo.CommitObject(commit); err != nil {
-				log.Printf("Not using tag %v since we do not have a commit for it (%v)", tag.Name().Short(), err)
-				return nil
-			} else {
-				if _, err := repo.TreeObject(commit.TreeHash); err != nil {
-					log.Printf("Not using tag %v since we do not have a tree for its commit", tag.Name().Short())
-					return nil
-				}
-			}
-
-			// parse tag as semver to filter on only release tags
-			if _, err := semver.NewVersion(strings.TrimPrefix(tag.Name().Short(), "v")); err == nil {
-				tags = append(tags, tagVersion{
-					tag:     tag,
-					version: tag.Name().Short(),
-				})
-			} else {
-				log.Printf("Not using tag %v due to error %v", tag.Name().Short(), err)
-			}
-
+		// first we check if we have a tree for this tag
+		if commit, err := repo.CommitObject(commit); err != nil {
+			log.Printf("Not using tag %v since we do not have a commit for it (%v)", tag.Name().Short(), err)
 			return nil
-		})
-		if err != nil {
-			return fmt.Errorf("error iterating tags in local git repository: %w", err)
-		}
-
-		fileReader := repositoryReader{
-			repository: repo,
-			versions:   make(map[string]*gitPlumbing.Reference),
-		}
-
-		if len(tags) > 0 {
-			for _, v := range tags {
-				fileReader.versions[v.version] = v.tag
-			}
-		}
-
-		branchIterator, err := repo.Branches()
-		if err != nil {
-			return fmt.Errorf("error iterating branches in local git repository: %w", err)
-		}
-
-		err = branchIterator.ForEach(func(branch *gitPlumbing.Reference) error {
-			fileReader.versions[branch.Name().Short()] = branch
+		} else if _, err := repo.TreeObject(commit.TreeHash); err != nil {
+			log.Printf("Not using tag %v since we do not have a tree for its commit", tag.Name().Short())
 			return nil
-		})
-		if err != nil {
-			return fmt.Errorf("error iterating branches in local git repository: %w", err)
 		}
 
-		if err := fileReader.readMajorVersions(); err != nil {
-			return fmt.Errorf("failed to retrieve versions of package '%v': %w", pkg.TargetName, err)
+		// parse tag as semver to filter on only release tags
+		if _, err := semver.NewVersion(strings.TrimPrefix(tag.Name().Short(), "v")); err == nil {
+			tags = append(tags, tagVersion{
+				tag:     tag,
+				version: tag.Name().Short(),
+			})
+		} else {
+			log.Printf("Not using tag %v due to error %v", tag.Name().Short(), err)
 		}
-
-		pkg.FileReader = &fileReader
-
-		if pkg.Summary == "" {
-			contents, err := fileReader.ReadFile("README.md", fileReader.Versions(fileReader.MajorVersions()[0])[0])
-			if err == nil {
-				pkg.Summary = markdown.ExtractFirstHeader(string(contents))
-			}
-		}
-
-		log.Printf("Loaded package '%v' with %v versions", pkg.TargetName, len(fileReader.versions))
 
 		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error iterating tags in local git repository: %w", err)
 	}
+
+	fileReader := repositoryReader{
+		repository: repo,
+		versions:   make(map[string]*gitPlumbing.Reference),
+	}
+
+	if len(tags) > 0 {
+		for _, v := range tags {
+			fileReader.versions[v.version] = v.tag
+		}
+	}
+
+	branchIterator, err := repo.Branches()
+	if err != nil {
+		return fmt.Errorf("error iterating branches in local git repository: %w", err)
+	}
+
+	err = branchIterator.ForEach(func(branch *gitPlumbing.Reference) error {
+		fileReader.versions[branch.Name().Short()] = branch
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error iterating branches in local git repository: %w", err)
+	}
+
+	if err := fileReader.readMajorVersions(); err != nil {
+		return fmt.Errorf("failed to retrieve versions of package '%v': %w", pkg.TargetName, err)
+	}
+
+	pkg.FileReader = &fileReader
+
+	if pkg.Summary == "" {
+		contents, err := fileReader.ReadFile("README.md", fileReader.Versions(fileReader.MajorVersions()[0])[0])
+		if err == nil {
+			pkg.Summary = markdown.ExtractFirstHeader(contents)
+		}
+	}
+
+	log.Printf("Loaded package '%v' with %v versions", pkg.TargetName, len(fileReader.versions))
+
+	return nil
 }

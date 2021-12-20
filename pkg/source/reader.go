@@ -31,9 +31,9 @@ func (r *repositoryReader) readMajorVersions() error {
 			continue
 		}
 
-		file, err := modfile.Parse(fmt.Sprintf("go.mod@%v", version), fileContents, nil)
+		file, err := modfile.Parse(fmt.Sprintf("go.mod@%v", version), []byte(fileContents), nil)
 		if err != nil {
-			return err
+			return fmt.Errorf("error parsing go.mod file: %w", err)
 		}
 
 		maybeMajor := path.Base(file.Module.Mod.Path)
@@ -56,11 +56,11 @@ func (r *repositoryReader) readMajorVersions() error {
 	return nil
 }
 
-// ReadFile implements VersionedFileReader
-func (r repositoryReader) ReadFile(path, version string) ([]byte, error) {
+// ReadFile implements VersionedFileReader on repositoryReader.
+func (r repositoryReader) ReadFile(path, version string) (string, error) {
 	tag, ok := r.versions[version]
 	if !ok {
-		return nil, fmt.Errorf("no tag for version in repository: %w", git.ErrTagNotFound)
+		return "", fmt.Errorf("no tag for version in repository: %w", git.ErrTagNotFound)
 	}
 
 	var commitHash gitPlumbing.Hash
@@ -72,26 +72,25 @@ func (r repositoryReader) ReadFile(path, version string) ([]byte, error) {
 
 	commit, err := r.repository.CommitObject(commitHash)
 	if err != nil {
-		return nil, fmt.Errorf("error resolving commit hash '%v' to commit: %w", commitHash, err)
+		return "", fmt.Errorf("error resolving commit hash '%v' to commit: %w", commitHash, err)
 	}
 
 	tree, err := r.repository.TreeObject(commit.TreeHash)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving tree for revision '%v': %w", tag.Hash(), err)
+		return "", fmt.Errorf("error retrieving tree for revision '%v': %w", tag.Hash(), err)
 	}
 
 	entry, err := tree.FindEntry(path)
 	if err != nil {
-		return nil, fmt.Errorf("cannot find path in given versions tree: %w", err)
+		return "", fmt.Errorf("cannot find path in given versions tree: %w", err)
 	}
 
 	file, err := tree.TreeEntryFile(entry)
 	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve file from given versions tree: %w", err)
+		return "", fmt.Errorf("cannot retrieve file from given versions tree: %w", err)
 	}
 
-	contents, err := file.Contents()
-	return []byte(contents), err
+	return file.Contents()
 }
 
 func (r repositoryReader) MajorVersions() []string {
@@ -109,7 +108,7 @@ func (r repositoryReader) MajorVersions() []string {
 func (r repositoryReader) Versions(major string) []string {
 	if v, ok := r.majorVersions[major]; ok {
 		return v
-	} else {
-		return nil
 	}
+
+	return nil
 }

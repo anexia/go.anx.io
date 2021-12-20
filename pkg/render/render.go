@@ -37,7 +37,7 @@ func (r *Renderer) SetBuildInfo(version string, sourceURL string) {
 func (r *Renderer) RenderFile(pkg *types.Package, filePath string, w io.Writer) error {
 	if pkg == nil {
 		return r.renderContentFile(filePath, w)
-	} else {
-		return r.renderPackageFile(pkg, filePath, w)
 	}
+
+	return r.renderPackageFile(pkg, filePath, w)
 }

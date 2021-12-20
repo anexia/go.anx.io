@@ -15,9 +15,9 @@ func RemoveGitRepoSuffix(repo string) string {
 func renderContent(content string, filePath string, data *layoutTemplateData) error {
 	switch path.Ext(filePath) {
 	case ".md":
-		data.MarkdownContent = string(content)
+		data.MarkdownContent = content
 	case ".go":
-		data.MarkdownContent = fmt.Sprintf("# `%v`\n\n```go\n%v\n```", filePath, string(content))
+		data.MarkdownContent = fmt.Sprintf("# `%v`\n\n```go\n%v\n```", filePath, content)
 	default:
 		return fmt.Errorf("%w: unknown file extension", os.ErrInvalid)
 	}
