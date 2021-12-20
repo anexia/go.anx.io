@@ -256,7 +256,8 @@ main h3 {
   color: #696969;
 }
 
-main h1:not(:first-child),
+/* `p:first-child + h1` is special case for the common "badges on top of README.md" */ 
+main h1:not(:first-child, p:first-child + h1),
 main h2:not(:first-child),
 main h3:not(:first-child) {
   margin-top: 2em;
