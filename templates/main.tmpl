@@ -6,13 +6,18 @@
   {{- with .Packages }}
     <section class="packages">
     {{- range . }}
+    {{- $highestMajor := index .FileReader.MajorVersions 0 -}}
       <article>
         <h3>go.anx.io/{{ .TargetName }}</h3>
         <summary>
           {{ .Summary }}
         </summary>
         <footer>
-          <a href="/{{ .TargetName }}/">More</a>
+          <a href="/{{ .TargetName }}/
+            {{- with $highestMajor -}}
+              {{- . -}}
+          {{- end -}}
+          ">More</a>
         </footer>
       </article>
     {{ end -}}
