@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/alecthomas/chroma v0.9.4
+	github.com/alecthomas/chroma v0.10.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/yuin/goldmark v1.4.4
 	golang.org/x/mod v0.5.1

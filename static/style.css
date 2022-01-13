@@ -329,7 +329,3 @@ a[href] {
 a.latestVersion {
   font-style: italic;
 }
-
-.chroma .ln {
-  user-select: none;
-}
