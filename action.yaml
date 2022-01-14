@@ -1,0 +1,11 @@
+name:        Update go.anx.io
+description: Triggers the build workflow for go.anx.io
+runs:
+  using: composite
+  steps:
+  - name: Trigger rebuild of go.anx.io
+    shell: sh
+    run: >
+      curl -X POST -sSf
+      --oauth2-bearer "$GOANXIO_E5E_TOKEN"
+      https://frontier.anexia-it.com/2d5a3a0959104b9fb1f57e3687a0fe07/gh-dispatch-2022011301/github-dispatch/go.anx.io/rebuild
