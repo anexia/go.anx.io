@@ -10,6 +10,7 @@
 {{- end -}}
 
 {{ define "meta" }}
+    <meta name="description" content="go.anx.io/{{ .Package.TargetName }} - {{ .Package.Summary }}">
     <meta name="go-import" content="go.anx.io/{{ .Package.TargetName -}}
                 {{- with .MajorVersion }}/{{ . }}{{ end }} git {{ .Package.Source }}">
     <meta name="go-source" content="go.anx.io/{{ .Package.TargetName -}}
@@ -26,9 +27,9 @@
       <nav>
         <a href="https://pkg.go.dev/go.anx.io/{{ .Package.TargetName }}@{{ .CurrentVersion }}">API documentation</a>
         <a href="{{ .Package.Source | removeGitRepoSuffix }}">Source repository</a>
-        <div role="combobox">
+        <div class="dropdown">
           <label id="versionLabel">Version:</label>
-          <menu class="dropdown" role="listbox" aria-labelledby="versionLabel">
+          <menu role="listbox" aria-labelledby="versionLabel">
             {{ range $major := .Package.FileReader.MajorVersions -}}
               <li role="option" aria-selected="false" class="majorVersion">
                 <a href="/

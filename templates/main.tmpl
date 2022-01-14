@@ -1,3 +1,9 @@
+{{ define "meta" }}
+    <meta name="description" content="Go packages made by Anexia">
+{{ end }}
+
+{{ define "body_classes" }}class="mainpage"{{ end }}
+
 {{ define "content" }}
   {{- with .MarkdownContent }}
     {{- . | renderMarkdown -}}
@@ -8,16 +14,16 @@
     {{- range . }}
     {{- $highestMajor := index .FileReader.MajorVersions 0 -}}
       <article>
-        <h3>go.anx.io/{{ .TargetName }}</h3>
+        <h1>go.anx.io/{{ .TargetName }}</h1>
         <summary>
           {{ .Summary }}
         </summary>
         <footer>
-          <a href="/{{ .TargetName }}/
+          <a href="/{{ .TargetName }}
             {{- with $highestMajor -}}
-              {{- . -}}
+              /{{- . -}}
           {{- end -}}
-          ">More</a>
+          ">{{ .TargetName }} docs</a>
         </footer>
       </article>
     {{ end -}}

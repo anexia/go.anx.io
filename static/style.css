@@ -45,10 +45,10 @@ html {
 }
 
 body {
-  font-family: Meta, 'Fira Sans', sans-serif;
+  font-family: 'Fira Sans', sans-serif;
   font-size: 16px;
   font-variant-numeric: lining-nums;
-  color: #373a3c;
+  color: #696969;
   background: #002d6e;
 
   max-width: 60em;
@@ -57,6 +57,10 @@ body {
   margin: auto;
 
   line-height: 1.2em;
+}
+
+body.mainpage {
+  max-width: 500px;
 }
 
 body > header {
@@ -75,6 +79,9 @@ body > header h1 {
   margin-bottom: 0;
   margin-left: 130px;
   line-height: 45px;
+
+  font-weight: 400;
+  font-size: 20px;
 }
 
 body > header > nav {
@@ -82,9 +89,9 @@ body > header > nav {
   gap: 20px;
 
   line-height: 1em;
-  padding-left: 1em;
-  padding-right: 1em;
-  margin-bottom: 1em;
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 2.5em;
 }
 
 body > header nav label {
@@ -109,13 +116,13 @@ body > header nav > ul > li {
   display: inline-block;
 }
 
-div[role=combobox] {
+div.dropdown {
   display: inline-block;
   position: relative;
   height: 1em;
 }
 
-menu.dropdown {
+.dropdown menu {
   line-height: 1em;
   width: max-content;
 
@@ -129,7 +136,7 @@ menu.dropdown {
   transition: all 0.1s ease-in-out;
 }
 
-menu.dropdown li {
+.dropdown menu li {
   display: none;
   opacity: 0;
   transition: all 0.1s ease-in-out;
@@ -140,12 +147,12 @@ menu.dropdown li {
   bottom: 0;
 }
 
-menu.dropdown:not(:hover):not(:focus-within) li {
+.dropdown menu:not(:hover):not(:focus-within) li {
   padding-left: 0;
 }
 
-menu.dropdown:hover li a,
-menu.dropdown:focus-within li a {
+.dropdown menu:hover li a,
+.dropdown menu:focus-within li a {
   color: #696969;
   display: block;
   width: 100%;
@@ -156,32 +163,32 @@ menu.dropdown:focus-within li a {
   transition: all .1s ease-in-out;
 }
 
-menu.dropdown:hover li:hover a,
-menu.dropdown:focus-within li:hover a {
+.dropdown menu:hover li:hover a,
+.dropdown menu:focus-within li:hover a {
   color: white;
 }
 
-menu.dropdown:focus-within > li a,
-menu.dropdown:hover > li a,
-menu.dropdown:focus-within > li a:hover,
-menu.dropdown:hover > li a:hover {
+.dropdown menu:focus-within > li a,
+.dropdown menu:hover > li a,
+.dropdown menu:focus-within > li a:hover,
+.dropdown menu:hover > li a:hover {
   border-bottom: none;
 }
 
-menu.dropdown li[aria-selected="true"] {
+.dropdown menu li[aria-selected="true"] {
   margin-top: 0;
   line-height: 1em;
 }
 
-menu.dropdown li[aria-selected="true"],
-menu.dropdown:hover li,
-menu.dropdown:focus-within li {
+.dropdown menu li[aria-selected="true"],
+.dropdown menu:hover li,
+.dropdown menu:focus-within li {
   display: block;
   opacity: 1;
 }
 
-menu.dropdown:hover,
-menu.dropdown:focus-within {
+.dropdown menu:hover,
+.dropdown menu:focus-within {
   max-height: 15em;
   overflow: auto;
 
@@ -191,24 +198,24 @@ menu.dropdown:focus-within {
   box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
 }
 
-menu.dropdown > li.header a {
+.dropdown menu> li.header a {
   color: #77BC1F;
 }
 
-menu.dropdown:focus-within > li,
-menu.dropdown:hover > li {
+.dropdown menu:focus-within > li,
+.dropdown menu:hover > li {
   color: #696969;
   transition: all .1s ease-in-out;
 }
 
-menu.dropdown:focus-within > li:hover,
-menu.dropdown:hover > li:hover {
+.dropdown menu:focus-within > li:hover,
+.dropdown menu:hover > li:hover {
   color: white;
   background-color: #77BC1F
 }
 
-menu.dropdown:focus-within > li[aria-selected="true"] a:before,
-menu.dropdown:hover > li[aria-selected="true"] a:before {
+.dropdown menu:focus-within > li[aria-selected="true"] a:before,
+.dropdown menu:hover > li[aria-selected="true"] a:before {
   content: '\2713';
   display: inline-block;
   width: 1em;
@@ -216,12 +223,12 @@ menu.dropdown:hover > li[aria-selected="true"] a:before {
   margin-left: -1em;
 }
 
-menu.dropdown:focus-within > li[aria-selected="true"]:hover a:before,
-menu.dropdown:hover > li[aria-selected="true"]:hover a:before {
+.dropdown menu:focus-within > li[aria-selected="true"]:hover a:before,
+.dropdown menu:hover > li[aria-selected="true"]:hover a:before {
   color: white;
 }
 
-menu.dropdown li.majorVersion {
+.dropdown menu li.majorVersion {
   font-weight: bold;
   padding-left: 0.5em;
 }
@@ -250,13 +257,21 @@ body > main img {
 main h1,
 main h2 {
   color: #003ca6;
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 1.75em;
 }
 
+main section h1,
 main h3 {
   color: #696969;
+  font-weight: 400;
+  margin-block-start: 0em;
+  margin-block-end: 0em;
+  font-size:20px;
 }
 
-/* `p:first-child + h1` is special case for the common "badges on top of README.md" */ 
+/* `p:first-child + h1` is special case for the common "badges on top of README.md" */
 main h1:not(:first-child, p:first-child + h1),
 main h2:not(:first-child),
 main h3:not(:first-child) {
@@ -280,7 +295,8 @@ section.packages {
 
 section.packages article {
   display: inline-block;
-  flex: 0 1 calc(50% - 10px);
+  width: 100%;
+  flex: 0 1 100%;
   box-sizing: border-box;
   padding: 20px;
   border: 1px solid #d7d7d7;
@@ -311,8 +327,8 @@ body > footer .copyright {
 }
 
 hr {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
   background-color: #003ca6;
   border: 0;
   height: 1px;

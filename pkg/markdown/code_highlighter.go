@@ -16,7 +16,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-var chromaStyle = styles.Get("monokailight")
+var chromaStyle = styles.Get("pygments")
 
 var chromaFormatterOpts = []html.Option{
 	html.Standalone(false),

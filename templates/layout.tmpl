@@ -14,7 +14,7 @@
     {{- block "meta" .PageData }}
     {{ end -}}
   </head>
-  <body>
+  <body {{ block "body_classes" . }}{{ end }}>
     <header>
       <h1>
       {{- block "headerTitle" .PageData -}}
