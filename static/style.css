@@ -45,10 +45,10 @@ html {
 }
 
 body {
-  font-family: Meta, 'Fira Sans', sans-serif;
+  font-family: 'Fira Sans', sans-serif;
   font-size: 16px;
   font-variant-numeric: lining-nums;
-  color: #373a3c;
+  color: #696969;
   background: #002d6e;
 
   max-width: 60em;
@@ -79,6 +79,9 @@ body > header h1 {
   margin-bottom: 0;
   margin-left: 130px;
   line-height: 45px;
+
+  font-weight: 400;
+  font-size: 20px;
 }
 
 body > header > nav {
@@ -86,9 +89,9 @@ body > header > nav {
   gap: 20px;
 
   line-height: 1em;
-  padding-left: 1em;
-  padding-right: 1em;
-  margin-bottom: 1em;
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 2.5em;
 }
 
 body > header nav label {
@@ -254,11 +257,18 @@ body > main img {
 main h1,
 main h2 {
   color: #003ca6;
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 1.75em;
 }
 
 main section h1,
 main h3 {
   color: #696969;
+  font-weight: 400;
+  margin-block-start: 0em;
+  margin-block-end: 0em;
+  font-size:20px;
 }
 
 /* `p:first-child + h1` is special case for the common "badges on top of README.md" */
@@ -317,8 +327,8 @@ body > footer .copyright {
 }
 
 hr {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
   background-color: #003ca6;
   border: 0;
   height: 1px;
