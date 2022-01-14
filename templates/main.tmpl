@@ -17,11 +17,11 @@
           {{ .Summary }}
         </summary>
         <footer>
-          <a href="/{{ .TargetName }}/
+          <a href="/{{ .TargetName }}
             {{- with $highestMajor -}}
-              {{- . -}}
+              /{{- . -}}
           {{- end -}}
-          ">More</a>
+          ">{{ .TargetName }} docs</a>
         </footer>
       </article>
     {{ end -}}
