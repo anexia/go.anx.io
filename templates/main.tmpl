@@ -2,6 +2,8 @@
     <meta name="description" content="Go packages made by Anexia">
 {{ end }}
 
+{{ define "body_classes" }}class="mainpage"{{ end }}
+
 {{ define "content" }}
   {{- with .MarkdownContent }}
     {{- . | renderMarkdown -}}

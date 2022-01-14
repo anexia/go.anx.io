@@ -59,6 +59,10 @@ body {
   line-height: 1.2em;
 }
 
+body.mainpage {
+  max-width: 500px;
+}
+
 body > header {
   background-image: url(Anexia_Logo_RGB.svg);
   background-repeat: no-repeat;
@@ -280,7 +284,8 @@ section.packages {
 
 section.packages article {
   display: inline-block;
-  flex: 0 1 calc(50% - 10px);
+  width: 100%;
+  flex: 0 1 100%;
   box-sizing: border-box;
   padding: 20px;
   border: 1px solid #d7d7d7;
