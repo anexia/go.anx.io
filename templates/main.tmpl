@@ -1,3 +1,7 @@
+{{ define "meta" }}
+    <meta name="description" content="Go packages made by Anexia">
+{{ end }}
+
 {{ define "content" }}
   {{- with .MarkdownContent }}
     {{- . | renderMarkdown -}}

@@ -10,6 +10,7 @@
 {{- end -}}
 
 {{ define "meta" }}
+    <meta name="description" content="go.anx.io/{{ .Package.TargetName }} - {{ .Package.Summary }}">
     <meta name="go-import" content="go.anx.io/{{ .Package.TargetName -}}
                 {{- with .MajorVersion }}/{{ . }}{{ end }} git {{ .Package.Source }}">
     <meta name="go-source" content="go.anx.io/{{ .Package.TargetName -}}
