@@ -259,7 +259,14 @@ main h2 {
   color: #003ca6;
   font-weight: 400;
   text-transform: uppercase;
+}
+
+main h1 {
   font-size: 1.75em;
+}
+
+main h2 {
+  font-size: 1.5em;
 }
 
 main section h1,
