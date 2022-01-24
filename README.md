@@ -38,8 +38,6 @@ to run after your tests went through.
 name: Trigger go.anx.io update
 on:
   push:
-    branches:
-    - "**"
 
 jobs:
   trigger:
