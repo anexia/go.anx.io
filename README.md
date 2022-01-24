@@ -30,7 +30,7 @@ header in `README.md` on the default branch.
 
 
 Add this as a new workflow or add the job `trigger` to one of your existing workflows. You can also modify it
-to run after your tests went through.
+to run after your tests went through. Make sure to run it for both branches and tags.
 
 ```yaml
 # anexia-it/go-awesome-library/.github/workflows/push.yaml
