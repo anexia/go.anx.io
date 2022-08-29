@@ -1,3 +1,4 @@
 - source: https://github.com/anexia-it/go-anxcloud.git
 - source: https://github.com/anexia-it/go-cloudlog.git
-- source: https://github.com/anexia-it/go-e5e.git
+- source: https://github.com/anexia/go-e5e.git
+  summary: Support library to help Go developers build Anexia e5e functions
