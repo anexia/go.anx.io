@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/anexia-it/go.anx.io/pkg/markdown"
 	"github.com/anexia-it/go.anx.io/pkg/types"
 )
 
@@ -19,19 +20,18 @@ type packageTemplateData struct {
 }
 
 func (r *Renderer) renderPackageFile(pkg *types.Package, filePath string, writer io.Writer) error {
-	data := packageTemplateData{
-		Package: pkg,
-	}
-
-	var moduleVersions []string
+	var (
+		moduleVersions []string
+		majorVersion   string
+	)
 
 	majorVersionPrefixRegex := regexp.MustCompile(`^v\d+(/|$)`)
-	if majorVersion := majorVersionPrefixRegex.FindString(filePath); majorVersion != "" {
-		data.MajorVersion = strings.TrimSuffix(majorVersion, "/")
-		moduleVersions = pkg.FileReader.Versions(data.MajorVersion)
+	if mv := majorVersionPrefixRegex.FindString(filePath); mv != "" {
+		majorVersion = strings.TrimSuffix(mv, "/")
+		moduleVersions = pkg.FileReader.Versions(majorVersion)
 
 		if len(moduleVersions) > 0 {
-			filePath = strings.TrimPrefix(filePath, majorVersion)
+			filePath = strings.TrimPrefix(filePath, mv)
 		}
 	}
 
@@ -52,17 +52,25 @@ func (r *Renderer) renderPackageFile(pkg *types.Package, filePath string, writer
 		filePath = "README.md"
 	}
 
-	data.layoutTemplateData.CurrentFile = filePath
-	data.CurrentVersion = version
-
 	content, err := pkg.FileReader.ReadFile(filePath, version)
 	if err != nil {
 		return fmt.Errorf("error reading file '%v' of version '%v': %w", filePath, version, err)
 	}
 
-	err = renderContent(content, filePath, &data.layoutTemplateData)
+	content, err = markdownContent(content, filePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("error retrieving markdown for package file: %w", err)
+	}
+
+	data := packageTemplateData{
+		layoutTemplateData: layoutTemplateData{
+			Title:           markdown.ExtractFirstHeader(content),
+			MarkdownContent: content,
+			CurrentFile:     filePath,
+		},
+		Package:        pkg,
+		CurrentVersion: version,
+		MajorVersion:   majorVersion,
 	}
 
 	return r.executeTemplate(writer, "package.tmpl", data)

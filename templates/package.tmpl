@@ -1,7 +1,7 @@
 {{- define "title" -}}
     go.anx.io/{{- .Package.TargetName -}}
     {{- with .MajorVersion }}/{{ . }}{{ end -}}
-    {{- with .MarkdownContent | extractFirstHeader }} - {{ . -}}{{- end -}}
+    {{- with .Title }} - {{ . -}}{{- end -}}
 {{- end -}}
 
 {{- define "headerTitle" -}}

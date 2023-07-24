@@ -31,7 +31,6 @@ func loadTemplates(templatePath string) (map[string]*template.Template, error) {
 	baseTemplate, err := template.New("").Funcs(template.FuncMap{
 		"formatDate":          formatDate,
 		"renderMarkdown":      markdown.RenderMarkdown,
-		"extractFirstHeader":  markdown.ExtractFirstHeader,
 		"removeGitRepoSuffix": RemoveGitRepoSuffix,
 		"default": func(d string, v string) string {
 			if v == "" {
@@ -76,9 +75,7 @@ func loadTemplates(templatePath string) (map[string]*template.Template, error) {
 func (r *Renderer) executeTemplate(destinationStream io.Writer, name string, data interface{}) error {
 	tmpl, ok := r.templates[name]
 	if !ok {
-		return &template.Error{
-			ErrorCode: template.ErrNoSuchTemplate,
-		}
+		return fmt.Errorf("requested template does not exist: %w", fs.ErrNotExist)
 	}
 
 	if err := tmpl.Execute(destinationStream, commonTemplateData{
