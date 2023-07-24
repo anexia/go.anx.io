@@ -3,9 +3,12 @@ package source
 import (
 	"errors"
 	"fmt"
+	"log"
 	"path"
 	"regexp"
+	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	git "github.com/go-git/go-git/v5"
 	gitPlumbing "github.com/go-git/go-git/v5/plumbing"
 	gitObject "github.com/go-git/go-git/v5/plumbing/object"
@@ -18,6 +21,84 @@ type repositoryReader struct {
 	repository    *git.Repository
 	majorVersions map[string][]string
 	versions      map[string]*gitPlumbing.Reference
+}
+
+func newRepositoryReader(repo *git.Repository) (*repositoryReader, error) {
+	ret := repositoryReader{
+		repository:    repo,
+		versions:      make(map[string]*gitPlumbing.Reference),
+		majorVersions: make(map[string][]string),
+	}
+
+	if err := ret.addTagVersions(); err != nil {
+		return nil, fmt.Errorf("failed adding versions based on tags: %w", err)
+	}
+
+	if err := ret.addBranchVersions(); err != nil {
+		return nil, fmt.Errorf("failed adding versions based on branches: %w", err)
+	}
+
+	if err := ret.readMajorVersions(); err != nil {
+		return nil, fmt.Errorf("failed to retrieve versions: %w", err)
+	}
+
+	return &ret, nil
+}
+
+func (r *repositoryReader) addTagVersions() error {
+	iter, err := r.repository.Tags()
+	if err != nil {
+		return fmt.Errorf("error iterating tags in local git repository: %w", err)
+	}
+
+	err = iter.ForEach(func(tag *gitPlumbing.Reference) error {
+		var commit gitPlumbing.Hash
+		if tagObject, err := r.repository.TagObject(tag.Hash()); err != nil {
+			commit = tag.Hash()
+		} else {
+			commit = tagObject.Target
+		}
+
+		// first we check if we have a tree for this tag
+		if commit, err := r.repository.CommitObject(commit); err != nil {
+			log.Printf("Not using tag %v since we do not have a commit for it (%v)", tag.Name().Short(), err)
+			return nil
+		} else if _, err := r.repository.TreeObject(commit.TreeHash); err != nil {
+			log.Printf("Not using tag %v since we do not have a tree for its commit (%v)", tag.Name().Short(), err)
+			return nil
+		}
+
+		// parse tag as semver to filter on only release tags
+		if _, err := semver.NewVersion(strings.TrimPrefix(tag.Name().Short(), "v")); err == nil {
+			r.versions[tag.Name().Short()] = tag
+		} else {
+			log.Printf("Not using tag %v due to error %v", tag.Name().Short(), err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error iterating tags in local git repository: %w", err)
+	}
+
+	return nil
+}
+
+func (r *repositoryReader) addBranchVersions() error {
+	branchIterator, err := r.repository.Branches()
+	if err != nil {
+		return fmt.Errorf("error iterating branches in local git repository: %w", err)
+	}
+
+	err = branchIterator.ForEach(func(branch *gitPlumbing.Reference) error {
+		r.versions[branch.Name().Short()] = branch
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error iterating branches in local git repository: %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryReader) readMajorVersions() error {
