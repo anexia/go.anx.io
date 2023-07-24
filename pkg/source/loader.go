@@ -60,6 +60,7 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 	repo, err := git.PlainOpen(localPath)
 
 	if errors.Is(err, git.ErrRepositoryNotExists) {
+		//nolint:exhaustruct
 		repo, err = git.PlainClone(localPath, false, &git.CloneOptions{
 			URL:        source.String(),
 			NoCheckout: true,
@@ -71,6 +72,7 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 		return fmt.Errorf("error opening local git repository: %w", err)
 	}
 
+	//nolint:exhaustruct
 	err = repo.Fetch(&git.FetchOptions{
 		Force:    true,
 		RefSpecs: []gitConfig.RefSpec{"refs/heads/*:refs/heads/*"},
