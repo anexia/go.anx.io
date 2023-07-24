@@ -8,6 +8,7 @@ import (
 )
 
 func sortVersions(versions []string) {
+	//nolint:varnamelen // what else to call a and b here?!
 	sort.Slice(versions, func(a int, b int) bool {
 		verA, _ := semver.NewVersion(versions[a])
 		verB, _ := semver.NewVersion(versions[b])

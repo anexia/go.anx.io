@@ -18,7 +18,7 @@ var ErrNoHeadingFound = errors.New("no heading found")
 func RenderMarkdown(contents string) (template.HTML, error) {
 	highlighter := codeHighlighter()
 
-	md := goldmark.New(
+	markdown := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,
 			extension.Typographer,
@@ -30,7 +30,7 @@ func RenderMarkdown(contents string) (template.HTML, error) {
 	)
 
 	buffer := bytes.Buffer{}
-	if err := md.Convert([]byte(contents), &buffer); err != nil {
+	if err := markdown.Convert([]byte(contents), &buffer); err != nil {
 		return "", fmt.Errorf("error processing markdown file to html: %w", err)
 	}
 
@@ -41,19 +41,20 @@ func RenderMarkdown(contents string) (template.HTML, error) {
 func ExtractFirstHeader(contents string) string {
 	doc := goldmark.DefaultParser().Parse(text.NewReader([]byte(contents)))
 
-	n := doc.FirstChild()
-	for n != nil {
-		if n.Kind() == ast.KindHeading {
-			if n.(*ast.Heading).Level == 1 {
-				if text, ok := n.FirstChild().(*ast.Text); ok {
+	potentialFirstHeader := doc.FirstChild()
+	for potentialFirstHeader != nil {
+		if potentialFirstHeader.Kind() == ast.KindHeading {
+			//nolint:forcetypeassert // already checked above
+			if potentialFirstHeader.(*ast.Heading).Level == 1 {
+				if text, ok := potentialFirstHeader.FirstChild().(*ast.Text); ok {
 					return string(text.Text([]byte(contents)))
-				} else if code, ok := n.FirstChild().(*ast.CodeSpan); ok {
+				} else if code, ok := potentialFirstHeader.FirstChild().(*ast.CodeSpan); ok {
 					return string(code.Text([]byte(contents)))
 				}
 			}
 		}
 
-		n = n.NextSibling()
+		potentialFirstHeader = potentialFirstHeader.NextSibling()
 	}
 
 	return ""

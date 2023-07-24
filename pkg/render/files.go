@@ -29,6 +29,7 @@ func (r *Renderer) GenerateFiles(destPath string) error {
 
 	if files, err := r.filesForContent(); err == nil {
 		allFiles = append(allFiles, pkgFiles{
+			pkg:   nil,
 			files: files,
 		})
 	} else {
@@ -68,13 +69,14 @@ func (r *Renderer) GenerateFiles(destPath string) error {
 }
 
 func (r *Renderer) generateFile(pkg *types.Package, dest, file string) error {
-	w, err := os.OpenFile(dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	//nolint:nosnakecase // O_WRONLY, O_CREATE and O_TRUNC are defined by the os package (and underlying POSIX spec).
+	destinationStream, err := os.OpenFile(dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("error opening file %q (create|truncate|write): %w", dest, err)
 	}
 
-	if err := r.RenderFile(pkg, file, w); err != nil {
-		var pkgName string = "<nil>"
+	if err := r.RenderFile(pkg, file, destinationStream); err != nil {
+		pkgName := "<nil>"
 		if pkg != nil {
 			pkgName = pkg.TargetName
 		}
@@ -82,7 +84,7 @@ func (r *Renderer) generateFile(pkg *types.Package, dest, file string) error {
 		return fmt.Errorf("error rendering file %q for package %q: %w", file, pkgName, err)
 	}
 
-	if err := w.Close(); err != nil {
+	if err := destinationStream.Close(); err != nil {
 		return fmt.Errorf("error closing file %q after writing to it: %w", dest, err)
 	}
 

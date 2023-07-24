@@ -90,7 +90,12 @@ func (r repositoryReader) ReadFile(path, version string) (string, error) {
 		return "", fmt.Errorf("cannot retrieve file from given versions tree: %w", err)
 	}
 
-	return file.Contents()
+	contents, err := file.Contents()
+	if err != nil {
+		return "", fmt.Errorf("error reading file contents: %w", err)
+	}
+
+	return contents, nil
 }
 
 func (r repositoryReader) MajorVersions() []string {

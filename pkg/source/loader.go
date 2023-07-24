@@ -109,7 +109,7 @@ func (l *Loader) loadSource(pkg *types.Package) error {
 			return nil
 		} else if _, err := repo.TreeObject(commit.TreeHash); err != nil {
 			log.Printf("Not using tag %v since we do not have a tree for its commit", tag.Name().Short())
-			return nil
+			return nil //nolint:nilerr
 		}
 
 		// parse tag as semver to filter on only release tags

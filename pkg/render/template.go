@@ -54,26 +54,26 @@ func loadTemplates(templatePath string) (map[string]*template.Template, error) {
 
 	ret := make(map[string]*template.Template, len(files)-1)
 
-	for _, f := range files {
-		if f == "layout.tmpl" {
+	for _, file := range files {
+		if file == "layout.tmpl" {
 			continue
 		}
 
 		tmpl, err := template.Must(baseTemplate.Clone()).ParseFiles(
-			path.Join(templatePath, f),
+			path.Join(templatePath, file),
 		)
 
 		if err != nil {
 			return nil, fmt.Errorf("error parsing layout template: %w", err)
 		}
 
-		ret[f] = tmpl
+		ret[file] = tmpl
 	}
 
 	return ret, nil
 }
 
-func (r *Renderer) executeTemplate(w io.Writer, name string, data interface{}) error {
+func (r *Renderer) executeTemplate(destinationStream io.Writer, name string, data interface{}) error {
 	tmpl, ok := r.templates[name]
 	if !ok {
 		return &template.Error{
@@ -81,10 +81,14 @@ func (r *Renderer) executeTemplate(w io.Writer, name string, data interface{}) e
 		}
 	}
 
-	return tmpl.Execute(w, commonTemplateData{
+	if err := tmpl.Execute(destinationStream, commonTemplateData{
 		CurrentTime: time.Now(),
 		Version:     r.version,
 		SourceURL:   r.sourceURL,
 		PageData:    data,
-	})
+	}); err != nil {
+		return fmt.Errorf("error executing template: %w", err)
+	}
+
+	return nil
 }

@@ -20,7 +20,11 @@ func (r *Renderer) renderContentFile(filePath string, writer io.Writer) error {
 	if filePath == "" || filePath == "index.html" {
 		filePath = "index.md"
 	} else if filePath == "chroma/style.css" {
-		return markdown.RenderCodeCSS(writer)
+		if err := markdown.RenderCodeCSS(writer); err != nil {
+			return fmt.Errorf("error rendering CSS: %w", err)
+		}
+
+		return nil
 	}
 
 	content, err := os.ReadFile(path.Join("content", filePath))

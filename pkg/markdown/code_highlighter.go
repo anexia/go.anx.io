@@ -30,7 +30,8 @@ var chromaFormatterOpts = []html.Option{
 // syntax highlighting. We are not using github.com/yuin/goldmark-highlighting to
 // enable links to line numbers (we have to count code blocks for that).
 // Also I wrote this before finding the existing extension ...
-//  -- Mara @LittleFox94 Grosch, 2021-12-15
+//
+//	-- Mara @LittleFox94 Grosch, 2021-12-15
 type codeHighlighterImpl struct {
 	codeIDCounter int
 }
@@ -57,7 +58,7 @@ func (ch *codeHighlighterImpl) RegisterFuncs(nrfr renderer.NodeRendererFuncRegis
 	nrfr.Register(ast.KindFencedCodeBlock, ch.renderHighlightedCode)
 }
 
-func (ch *codeHighlighterImpl) renderHighlightedCode(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (ch *codeHighlighterImpl) renderHighlightedCode(destinationStream util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
@@ -98,11 +99,20 @@ func (ch *codeHighlighterImpl) renderHighlightedCode(w util.BufWriter, source []
 		append(chromaFormatterOpts, html.LinkableLineNumbers(true, codeLinkID))...,
 	)
 
-	return ast.WalkContinue, formatter.Format(w, chromaStyle, tokens)
+	status, err := ast.WalkContinue, formatter.Format(destinationStream, chromaStyle, tokens)
+	if err != nil {
+		return status, fmt.Errorf("error walking AST: %w", err)
+	}
+
+	return status, nil
 }
 
 func RenderCodeCSS(w io.Writer) error {
 	formatter := html.New(chromaFormatterOpts...)
 
-	return formatter.WriteCSS(w, chromaStyle)
+	if err := formatter.WriteCSS(w, chromaStyle); err != nil {
+		return fmt.Errorf("error writing CSS for code highlighting style: %w", err)
+	}
+
+	return nil
 }
