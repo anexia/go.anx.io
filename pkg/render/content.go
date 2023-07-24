@@ -32,15 +32,18 @@ func (r *Renderer) renderContentFile(filePath string, writer io.Writer) error {
 		return fmt.Errorf("error reading source file '%v': %w", filePath, err)
 	}
 
-	data := mainTemplateData{
-		layoutTemplateData: layoutTemplateData{
-			CurrentFile: filePath,
-		},
-		Packages: r.packages,
+	markdown, err := markdownContent(string(content), filePath)
+	if err != nil {
+		return fmt.Errorf("error retrieving markdown for content file: %w", err)
 	}
 
-	if err = renderContent(string(content), filePath, &data.layoutTemplateData); err != nil {
-		return err
+	data := mainTemplateData{
+		layoutTemplateData: layoutTemplateData{
+			Title:           "",
+			CurrentFile:     filePath,
+			MarkdownContent: markdown,
+		},
+		Packages: r.packages,
 	}
 
 	return r.executeTemplate(writer, "main.tmpl", data)
@@ -63,4 +66,15 @@ func (r *Renderer) filesForContent() ([]string, error) {
 	}
 
 	return ret, nil
+}
+
+func markdownContent(content string, filePath string) (string, error) {
+	switch path.Ext(filePath) {
+	case ".md":
+		return content, nil
+	case ".go":
+		return fmt.Sprintf("# `%v`\n\n```go\n%v\n```", filePath, content), nil
+	default:
+		return "", fmt.Errorf("%w: unknown file extension", os.ErrInvalid)
+	}
 }

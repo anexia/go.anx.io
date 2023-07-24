@@ -26,6 +26,10 @@ func NewRenderer(templatePath string, contentPath string, packages []*types.Pack
 		templates:   templates,
 		packages:    packages,
 		contentPath: contentPath,
+
+		// both those fields are set later
+		version:   "",
+		sourceURL: "",
 	}, nil
 }
 
