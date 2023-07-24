@@ -19,7 +19,10 @@ tools:
 	cd tools && go build -o . github.com/golangci/golangci-lint/cmd/golangci-lint
 	cd tools && go build -o . github.com/client9/misspell/cmd/misspell
 
-test: generate
+unit-test:
+	go test -v ./...
+
+test: unit-test generate
 	cd tools && go run test.go ../public ../packages.yaml
 
 .PHONY: lint test go.anx.io serve generate tools
