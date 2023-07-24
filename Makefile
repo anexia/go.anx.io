@@ -13,7 +13,7 @@ go.anx.io:
 
 lint: tools
 	tools/golangci-lint run ./...
-	tools/misspell -error ./
+	tools/misspell -error ./static ./content ./templates
 
 tools:
 	cd tools && go build -o . github.com/golangci/golangci-lint/cmd/golangci-lint
