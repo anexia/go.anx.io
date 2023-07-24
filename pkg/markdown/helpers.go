@@ -46,11 +46,7 @@ func ExtractFirstHeader(contents string) string {
 		if potentialFirstHeader.Kind() == ast.KindHeading {
 			//nolint:forcetypeassert // already checked above
 			if potentialFirstHeader.(*ast.Heading).Level == 1 {
-				if text, ok := potentialFirstHeader.FirstChild().(*ast.Text); ok {
-					return string(text.Text([]byte(contents)))
-				} else if code, ok := potentialFirstHeader.FirstChild().(*ast.CodeSpan); ok {
-					return string(code.Text([]byte(contents)))
-				}
+				return string(potentialFirstHeader.Text([]byte(contents)))
 			}
 		}
 
