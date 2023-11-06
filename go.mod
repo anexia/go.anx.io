@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/chroma v0.10.0
 	github.com/go-git/go-git/v5 v5.10.0
 	github.com/yuin/goldmark v1.6.0
-	golang.org/x/mod v0.13.0
+	golang.org/x/mod v0.14.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
