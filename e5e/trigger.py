@@ -45,7 +45,7 @@ def _trigger_goanxio_workflow():
     auth         = ('%s:%s' % (cfg_gh_token_user, cfg_gh_token))
     encoded_auth = base64.b64encode(auth.encode('ascii')).decode('ascii')
 
-    url = 'https://api.github.com/repos/anexia-it/go.anx.io/dispatches'
+    url = 'https://api.github.com/repos/anexia/go.anx.io/dispatches'
 
     request = urllib.request.Request(
         url,
