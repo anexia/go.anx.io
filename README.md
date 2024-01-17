@@ -14,15 +14,15 @@ You can look at [anexia-it/go-anxcloud#96](https://github.com/anexia-it/go-anxcl
 what to do, there is also a handy `sed` in the comments to change import paths over the whole repository.
 
 ```yaml
-# anexia-it/go.anx.io/packages.yaml
+# anexia/go.anx.io/packages.yaml
 
 # This package can be imported as go.anx.io/awesomeLibrary
-- source:     https://github.com/anexia-it/go-awesome-library.git
+- source:     https://github.com/anexia/go-awesome-library.git
   targetName: awesomeLibrary
   summary:    This library does some really awesome things
 
 # This package can be imported as go.anx.io/go-boring-library
-- source:     https://github.com/anexia-it/go-boring-library.git
+- source:     https://github.com/anexia/go-boring-library.git
 ```
 
 `targetName` defaults to the last part of the URL without the `.git`, `summary` to the first top-level
@@ -33,7 +33,7 @@ Add this as a new workflow or add the job `trigger` to one of your existing work
 to run after your tests went through. Make sure to run it for both branches and tags.
 
 ```yaml
-# anexia-it/go-awesome-library/.github/workflows/push.yaml
+# anexia/go-awesome-library/.github/workflows/push.yaml
 
 name: Trigger go.anx.io update
 on:
@@ -44,7 +44,7 @@ jobs:
     name:    Trigger go.anx.io update
     runs-on: ubuntu-latest
     steps:
-    - uses: anexia-it/go.anx.io@main
+    - uses: anexia/go.anx.io@main
       env:
         GOANXIO_E5E_TOKEN: "${{ secrets.GOANXIO_E5E_TOKEN }}"
 ```
