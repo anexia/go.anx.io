@@ -57,7 +57,7 @@ jobs:
         SOURCE_URL: https://github.com/${{ github.repository }}/tree/${{ github.sha }}
 
     - name: upload generated pages
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: go.anx.io
         path: public/
