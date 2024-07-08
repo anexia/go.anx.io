@@ -1,13 +1,14 @@
 linters:
   enable-all: true
   disable:
-  - exhaustivestruct
   - depguard
+  - execinquery # deprecated since v1.58.0
   - funlen
   - gci
-  - goconst
   - gochecknoglobals
+  - goconst
   - gofumpt
   - gomnd
   - lll
+  - mnd # some magic numbers are acceptable.
   - nlreturn
