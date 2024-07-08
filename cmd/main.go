@@ -159,6 +159,7 @@ func copyStaticFiles(staticPath string, destinationPath string) error {
 			if err != nil {
 				return fmt.Errorf("error creating directory %q: %w", destinationPath, err)
 			}
+
 			return nil
 		}
 
