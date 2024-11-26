@@ -3,3 +3,5 @@
 - source: https://github.com/anexia/go-e5e.git
   targetName: e5e
   summary: Support library to help Go developers build Anexia e5e functions
+- source: https://github.com/anexia/k8s-external-dns-webhook.git
+  targetName: external-dns-webhook
