@@ -3,7 +3,7 @@ module github.com/anexia-it/go.anx.io
 go 1.21
 
 require (
-	github.com/Masterminds/semver/v3 v3.3.0
+	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/alecthomas/chroma v0.10.0
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/yuin/goldmark v1.7.4
