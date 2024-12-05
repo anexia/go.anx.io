@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/alecthomas/chroma v0.10.0
 	github.com/go-git/go-git/v5 v5.12.0
-	github.com/yuin/goldmark v1.7.4
+	github.com/yuin/goldmark v1.7.8
 	golang.org/x/mod v0.20.0
 	gopkg.in/yaml.v2 v2.4.0
 )
