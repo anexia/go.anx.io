@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>go.anx.io/go-cloudlog/v2 - go-cloudlog</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=900, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/chroma/style.css">
+    <meta name="description" content="go.anx.io/go-cloudlog - go-cloudlog">
+    <meta name="go-import" content="go.anx.io/go-cloudlog/v2 git https://github.com/anexia-it/go-cloudlog.git">
+    <meta name="go-source" content="go.anx.io/go-cloudlog https://github.com/anexia-it/go-cloudlog https://github.com/anexia-it/go-cloudlog/tree/v2.0.1 https://github.com/anexia-it/go-cloudlog/tree/v2.0.1/README.md">
+</head>
+  <body >
+    <header>
+      <h1>go.anx.io/go-cloudlog/v2</h1><hr />
+      <nav>
+        <a href="https://pkg.go.dev/go.anx.io/go-cloudlog@v2.0.1">API documentation</a>
+        <a href="https://github.com/anexia-it/go-cloudlog">Source repository</a>
+        <div class="dropdown">
+          <label id="versionLabel">Version:</label>
+          <menu role="listbox" aria-labelledby="versionLabel">
+            <li role="option" aria-selected="false" class="majorVersion">
+                <a href="/go-cloudlog/v2/README.md">v2</a>
+              </li>
+              <li role="option" aria-selected="false">
+                  <a href="/go-cloudlog/v2/README.md@v2.0.2">v2.0.2</a>
+                </li>
+              <li role="option" aria-selected="true">
+                  <a href="/go-cloudlog/v2/README.md@v2.0.1">v2.0.1</a>
+                </li>
+              <li role="option" aria-selected="false">
+                  <a href="/go-cloudlog/v2/README.md@master">master</a>
+                </li>
+              <li role="option" aria-selected="false" class="majorVersion">
+                <a href="/go-cloudlog/README.md">v1</a>
+              </li>
+              <li role="option" aria-selected="false">
+                  <a href="/go-cloudlog/README.md@v2.0.0">v2.0.0</a>
+                </li>
+              </menu>
+        </div>
+        <a class="common" href="/">Discover more packages</a>
+      </nav>
+    
+    </header>
+    <main>
+      <h1 id="go-cloudlog">go-cloudlog</h1>
+<p><a href="https://godoc.org/github.com/anexia-it/go-cloudlog"><img src="https://godoc.org/github.com/anexia-it/go-cloudlog?status.svg" alt="GoDoc"></a>
+<a href="https://travis-ci.org/anexia-it/go-cloudlog"><img src="https://travis-ci.org/anexia-it/go-cloudlog.svg?branch=master" alt="Build Status"></a>
+<a href="https://codecov.io/gh/anexia-it/go-cloudlog"><img src="https://codecov.io/gh/anexia-it/go-cloudlog/branch/master/graph/badge.svg" alt="codecov"></a>
+<a href="https://goreportcard.com/report/github.com/anexia-it/go-cloudlog"><img src="https://goreportcard.com/badge/github.com/anexia-it/go-cloudlog" alt="Go Report Card"></a></p>
+<p>go-cloudlog is a client library for Anexia CloudLog.</p>
+<p>Currently it only provides to push events to CloudLog.</p>
+<h2 id="install">Install</h2>
+<p>With a <a href="https://golang.org/doc/install#testing">correctly configured</a> Go toolchain:</p>
+<pre tabindex="0" class="chroma"><code><span class="line"><span class="ln" id="code-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#code-1-1">1</a></span><span class="cl">go get -u github.com/anexia-it/go-cloudlog
+</span></span></code></pre><h2 id="quickstart">Quickstart</h2>
+<pre tabindex="0" class="chroma"><code><span class="line"><span class="ln" id="code-2-1"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-1"> 1</a></span><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="ln" id="code-2-2"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-2"> 2</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="code-2-3"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-3"> 3</a></span><span class="cl"><span class="kn">import</span> <span class="nx">cloudlog</span> <span class="s">&#34;github.com/anexia-it/go-cloudlog&#34;</span>
+</span></span><span class="line"><span class="ln" id="code-2-4"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-4"> 4</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="code-2-5"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-5"> 5</a></span><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="code-2-6"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-6"> 6</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="code-2-7"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-7"> 7</a></span><span class="cl">  <span class="c1">// Init CloudLog client
+</span></span></span><span class="line"><span class="ln" id="code-2-8"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-8"> 8</a></span><span class="cl"><span class="c1"></span>  <span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cloudlog</span><span class="p">.</span><span class="nf">NewCloudLog</span><span class="p">(</span><span class="s">&#34;index&#34;</span><span class="p">,</span> <span class="s">&#34;token&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="code-2-9"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-9"> 9</a></span><span class="cl">  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="code-2-10"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-10">10</a></span><span class="cl">    <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="code-2-11"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-11">11</a></span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="code-2-12"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-12">12</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="code-2-13"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-13">13</a></span><span class="cl">  <span class="c1">// Push simple message
+</span></span></span><span class="line"><span class="ln" id="code-2-14"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-14">14</a></span><span class="cl"><span class="c1"></span>  <span class="nx">client</span><span class="p">.</span><span class="nf">PushEvent</span><span class="p">(</span><span class="s">&#34;My first CloudLog event&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="code-2-15"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-15">15</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="code-2-16"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-16">16</a></span><span class="cl">  <span class="c1">// Push document as map
+</span></span></span><span class="line"><span class="ln" id="code-2-17"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-17">17</a></span><span class="cl"><span class="c1"></span>  <span class="nx">logger</span><span class="p">.</span><span class="nf">PushEvent</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{</span><span class="p">}</span><span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="code-2-18"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-18">18</a></span><span class="cl">	<span class="s">&#34;timestamp&#34;</span><span class="p">:</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">(</span><span class="p">)</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-19"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-19">19</a></span><span class="cl">	<span class="s">&#34;user&#34;</span><span class="p">:</span>      <span class="s">&#34;test&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-20"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-20">20</a></span><span class="cl">	<span class="s">&#34;severity&#34;</span><span class="p">:</span>  <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-21"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-21">21</a></span><span class="cl">	<span class="s">&#34;message&#34;</span><span class="p">:</span>   <span class="s">&#34;My first CloudLog event&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-22"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-22">22</a></span><span class="cl">  <span class="p">}</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="code-2-23"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-23">23</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="code-2-24"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-24">24</a></span><span class="cl">  <span class="c1">// Push document as map
+</span></span></span><span class="line"><span class="ln" id="code-2-25"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-25">25</a></span><span class="cl"><span class="c1"></span>  <span class="kd">type</span> <span class="nx">Document</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="code-2-26"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-26">26</a></span><span class="cl">	<span class="nx">Timestamp</span> <span class="kt">uint64</span> <span class="s">`</span><span class="s">cloudlog:&#34;timestamp&#34;</span><span class="s">`</span>
+</span></span><span class="line"><span class="ln" id="code-2-27"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-27">27</a></span><span class="cl">	<span class="nx">User</span>      <span class="kt">string</span> <span class="s">`</span><span class="s">cloudlog:&#34;user&#34;</span><span class="s">`</span>
+</span></span><span class="line"><span class="ln" id="code-2-28"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-28">28</a></span><span class="cl">	<span class="nx">Severity</span>  <span class="kt">int</span>    <span class="s">`</span><span class="s">cloudlog:&#34;severity&#34;</span><span class="s">`</span>
+</span></span><span class="line"><span class="ln" id="code-2-29"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-29">29</a></span><span class="cl">	<span class="nx">Message</span>   <span class="kt">string</span> <span class="s">`</span><span class="s">cloudlog:&#34;message&#34;</span><span class="s">`</span>
+</span></span><span class="line"><span class="ln" id="code-2-30"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-30">30</a></span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="code-2-31"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-31">31</a></span><span class="cl">  <span class="nx">logger</span><span class="p">.</span><span class="nf">PushEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">Document</span><span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="code-2-32"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-32">32</a></span><span class="cl"> 	<span class="nx">Timestamp</span><span class="p">:</span> <span class="mi">1495171849463</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-33"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-33">33</a></span><span class="cl">	<span class="nx">User</span><span class="p">:</span>      <span class="s">&#34;test&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-34"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-34">34</a></span><span class="cl">	<span class="nx">Severity</span><span class="p">:</span>  <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-35"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-35">35</a></span><span class="cl">	<span class="nx">Message</span><span class="p">:</span>   <span class="s">&#34;My first CloudLog event&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="code-2-36"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-36">36</a></span><span class="cl">  <span class="p">}</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="code-2-37"><a style="outline: none; text-decoration:none; color:inherit" href="#code-2-37">37</a></span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+    </main>
+    <footer>
+      <hr />
+      <span class="buildinfo">Generated on
+        <span title="2024-12-18T10:57:31Z">
+          2024-12-18
+        </span>
+        from 
+        <a href="https://github.com/anexia/go.anx.io/tree/b3bfb206ef8b068186d2f2ee7338a35cf1beabc4">main</a></span>
+      <span class="copyright">&copy; 2006 - 2024 Anexia Internetdienstleistungs GmbH</span>
+    </footer>
+  </body>
+</html>
